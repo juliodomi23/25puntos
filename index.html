@@ -669,8 +669,9 @@ async function cargarEstado(){
   render();
   setInterval(async () => {
     if (document.activeElement && document.activeElement.tagName==='INPUT') return; // no interrumpir mientras escribe
+    const antes = JSON.stringify(DB);
     await cargarEstado();
-    render();
+    if (JSON.stringify(DB) !== antes) render();   // solo repinta si de verdad cambió algo
   }, 2000);
 })();
 </script>
