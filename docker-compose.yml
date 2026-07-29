@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    environment:
+      - TZ=America/Mexico_City
+      - PORT=3070
+    expose:
+      - "3070"
+    restart: unless-stopped
