@@ -34,10 +34,21 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
 .today-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:pulse 2.4s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 .today-pill small{color:var(--ink-3);font-weight:600}
-.role-switch{display:flex;background:var(--gray-soft);border-radius:99px;padding:3px;gap:2px}
-.role-switch button{border:0;background:transparent;font-family:'Sora';font-weight:700;font-size:12px;
-  padding:8px 14px;border-radius:99px;color:var(--ink-2);cursor:pointer;transition:all .2s}
-.role-switch button.on{background:var(--ink);color:var(--paper)}
+.logout-btn{border:1.5px solid var(--line);background:var(--card);font-family:'Sora';font-weight:700;font-size:12px;
+  padding:8px 14px;border-radius:99px;color:var(--ink-2);cursor:pointer}
+.logout-btn:hover{border-color:var(--amber);color:var(--amber)}
+
+/* ===== login ===== */
+.login-wrap{min-height:60vh;display:flex;align-items:center;justify-content:center;padding:24px 0}
+.login-card{width:100%;max-width:340px;padding:28px 26px;display:flex;flex-direction:column;gap:14px}
+.login-card h2{margin:0 0 2px}
+.login-card label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:var(--ink-2)}
+.login-card input{font:inherit;font-size:15px;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);
+  background:var(--paper);color:var(--ink);outline:none}
+.login-card input:focus{border-color:var(--amber)}
+.login-card button{margin-top:6px;border:0;background:var(--ink);color:var(--paper);font-family:'Sora';font-weight:700;
+  font-size:14px;padding:12px;border-radius:10px;cursor:pointer}
+.login-err{color:var(--bad);font-size:12px;font-weight:700;margin:-4px 0 0}
 
 /* ===== agent chips ===== */
 .chips{display:flex;gap:8px;overflow-x:auto;padding:14px 0 6px;scrollbar-width:none}
@@ -218,10 +229,7 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
     <div class="brand"><em>25</em> Puntos<small>Panel de desempeño</small></div>
     <div class="hdr-right">
       <div class="today-pill"><span class="dot"></span><span id="hdrFecha"></span><small id="hdrSemana"></small></div>
-      <div class="role-switch">
-        <button id="btnAgente" class="on">Agente</button>
-        <button id="btnDuena">Dueña</button>
-      </div>
+      <button id="btnLogout" class="logout-btn" style="display:none">Cerrar sesión</button>
     </div>
   </header>
   <main id="app"></main>
@@ -298,19 +306,50 @@ function racha(aid){       /* días hábiles consecutivos cumpliendo meta, hacia
   return n;
 }
 
+/* ================== login (sin seguridad real, solo filtra la vista) ================== */
+// ponytail: usuario/contraseña fijos en el cliente — suficiente para una demo
+// de una tarde con 2 personas, no para producción real.
+const USERS = {
+  duena: { pass: 'promotora25', rol: 'duena' },
+  julio: { pass: 'promotora25', rol: 'agente', ag: 'ana' },
+};
+const SESSION_KEY = 'sesion25pts_v1';
+const getSesion = () => { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch(e){ return null; } };
+const setSesion = (user, s) => localStorage.setItem(SESSION_KEY, JSON.stringify({user, ...s}));
+let sesion = null;
+
+function loginHTML(err){
+  return `<div class="login-wrap"><form class="card login-card" id="loginForm">
+    <h2>Iniciar sesión</h2>
+    <label>Usuario<input name="user" autocomplete="username" required></label>
+    <label>Contraseña<input name="pass" type="password" autocomplete="current-password" required></label>
+    ${err?'<p class="login-err">Usuario o contraseña incorrectos.</p>':''}
+    <button type="submit">Entrar</button>
+  </form></div>`;
+}
+
+function mostrarLogin(err){
+  $('#app').innerHTML = loginHTML(err);
+  $('#btnLogout').style.display = 'none';
+  document.getElementById('loginForm').onsubmit = e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const u = fd.get('user').trim().toLowerCase(), p = fd.get('pass');
+    const def = USERS[u];
+    if (def && def.pass === p){ setSesion(u, {rol:def.rol, ag:def.ag}); iniciarApp(); }
+    else mostrarLogin(true);
+  };
+}
+
 /* ================== estado / router ================== */
 let vista = 'agente', agenteSel = 'ana';
 const $ = s => document.querySelector(s);
-document.getElementById('btnAgente').onclick = () => { vista='agente'; render(); };
-document.getElementById('btnDuena').onclick  = () => { vista='duena';  render(); };
 const fechaLarga = hoy.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
 $('#hdrFecha').textContent = fechaLarga.charAt(0).toUpperCase()+fechaLarga.slice(1);
 $('#hdrSemana').textContent = '· Semana '+getWeek(hoy);
 function getWeek(d){ const s=new Date(d.getFullYear(),0,1); return Math.ceil(((d-s)/864e5 + s.getDay()+1)/7); }
 
 function render(){
-  $('#btnAgente').classList.toggle('on', vista==='agente');
-  $('#btnDuena').classList.toggle('on', vista==='duena');
   $('#app').innerHTML = vista==='agente' ? vAgente() : vDuena();
   bind();
 }
@@ -371,12 +410,14 @@ function vAgente(){
   const pros = DB.pros[a.id] || ['','','','',''];
   const rch = racha(a.id);
 
+  const soloUnAgente = sesion && sesion.rol==='agente' && sesion.ag;
+
   return `
-  <div class="chips">${AGENTES.map(x=>`
+  ${soloUnAgente ? '' : `<div class="chips">${AGENTES.map(x=>`
     <button class="chip ${x.id===agenteSel?'on':''}" data-ag="${x.id}">
       <span class="av" style="background:${x.color}">${inic(x.nombre)}</span>${x.nombre.split(' ')[0]}
     </button>`).join('')}
-  </div>
+  </div>`}
 
   <div class="hero fade-in" id="heroA">${heroAgenteHTML(a,p)}</div>
   ${rch>=2?`<p style="font-size:13px;font-weight:700;color:var(--good);margin-top:12px">🔥 Racha: ${rch} días seguidos cumpliendo tu meta</p>`:''}
@@ -626,7 +667,7 @@ function vDuena(){
 /* ================== interacción ================== */
 function bind(){
   document.querySelectorAll('[data-ag]').forEach(b => b.onclick = () => { agenteSel=b.dataset.ag; render(); });
-  document.querySelectorAll('[data-goag]').forEach(b => b.onclick = () => { agenteSel=b.dataset.goag; vista='agente'; render(); });
+  // la dueña ve el detalle en su propio panel; no salta al panel de un agente (login separa los roles)
   document.querySelectorAll('.ctr-btn').forEach(b => b.onclick = () => {
     const k=b.dataset.k, d=+b.dataset.d;
     const r=diaDe(agenteSel);
@@ -647,25 +688,18 @@ function bind(){
   });
 }
 
-function aplicarRolDeURL(){
-  const q = new URLSearchParams(location.search);
-  const rol = q.get('rol');
-  if (rol==='duena'){ vista='duena'; $('.role-switch').style.display='none'; }
-  else if (rol==='agente'){
-    vista='agente';
-    const ag = q.get('ag');
-    if (ag && AGENTES.some(a=>a.id===ag)) agenteSel=ag;
-    $('.role-switch').style.display='none';
-  }
-}
-
 async function cargarEstado(){
   try { DB = await fetch('/api/state').then(r=>r.json()); } catch(e){ console.error('sin conexión al servidor', e); }
 }
 
-(async () => {
+async function iniciarApp(){
+  sesion = getSesion();
+  vista = sesion.rol;
+  if (sesion.rol==='agente' && sesion.ag) agenteSel = sesion.ag;
+  const btnOut = $('#btnLogout');
+  btnOut.style.display = '';
+  btnOut.onclick = () => { localStorage.removeItem(SESSION_KEY); location.reload(); };
   await cargarEstado();
-  aplicarRolDeURL();
   render();
   setInterval(async () => {
     if (document.activeElement && document.activeElement.tagName==='INPUT') return; // no interrumpir mientras escribe
@@ -673,7 +707,11 @@ async function cargarEstado(){
     await cargarEstado();
     if (JSON.stringify(DB) !== antes) render();   // solo repinta si de verdad cambió algo
   }, 2000);
-})();
+}
+
+sesion = getSesion();
+if (sesion && USERS[sesion.user]) iniciarApp();
+else mostrarLogin(false);
 </script>
 </body>
 </html>
