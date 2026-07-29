@@ -311,7 +311,7 @@ function racha(aid){       /* días hábiles consecutivos cumpliendo meta, hacia
 // ponytail: usuario/contraseña fijos en el cliente — suficiente para una demo
 // de una tarde con 2 personas, no para producción real.
 const USERS = {
-  duena: { pass: 'promotora25', rol: 'duena' },
+  admin: { pass: 'promotora25', rol: 'duena' },
   julio: { pass: 'promotora25', rol: 'agente', ag: 'julio' },
 };
 const SESSION_KEY = 'sesion25pts_v1';
@@ -421,7 +421,7 @@ function vAgente(){
     </button>`).join('')}
   </div>`}
 
-  <div class="hero fade-in" id="heroA">${heroAgenteHTML(a,p)}</div>
+  <div class="hero" id="heroA">${heroAgenteHTML(a,p)}</div>
   ${rch>=2?`<p style="font-size:13px;font-weight:700;color:var(--good);margin-top:12px">🔥 Racha: ${rch} días seguidos cumpliendo tu meta</p>`:''}
 
   <h2><small>Captura de hoy</small>¿Qué hiciste hoy?</h2>
@@ -576,7 +576,7 @@ function vDuena(){
   };
 
   return `
-  <div class="hero fade-in">
+  <div class="hero">
     <div class="date">Resumen del equipo · ${fechaLarga}</div>
     <div class="hero-row">
       <div class="big-pts">${cumplen}<span>/${AGENTES.length} en meta hoy</span></div>
@@ -708,7 +708,11 @@ async function iniciarApp(){
     if (document.activeElement && document.activeElement.tagName==='INPUT') return; // no interrumpir mientras escribe
     const antes = JSON.stringify(DB);
     await cargarEstado();
-    if (JSON.stringify(DB) !== antes) render();   // solo repinta si de verdad cambió algo
+    if (JSON.stringify(DB) !== antes) {            // solo repinta si de verdad cambió algo
+      const y = window.scrollY;
+      render();
+      window.scrollTo(0, y);                       // no perder el lugar donde estaba viendo
+    }
   }, 2000);
 }
 
