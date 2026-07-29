@@ -261,6 +261,7 @@ const AGENTES = [
   {id:'caro', nombre:'Carolina Ruiz', color:'#B91C1C'},
   {id:'jose', nombre:'José Aguilar',  color:'#4D7C0F'},
   {id:'mari', nombre:'María Salas',   color:'#0F766E'},
+  {id:'julio',nombre:'Julio Domínguez',color:'#1D4ED8'},
 ];
 const hoy = new Date(); hoy.setHours(0,0,0,0);
 const iso = d => d.toISOString().slice(0,10);
@@ -311,7 +312,7 @@ function racha(aid){       /* días hábiles consecutivos cumpliendo meta, hacia
 // de una tarde con 2 personas, no para producción real.
 const USERS = {
   duena: { pass: 'promotora25', rol: 'duena' },
-  julio: { pass: 'promotora25', rol: 'agente', ag: 'ana' },
+  julio: { pass: 'promotora25', rol: 'agente', ag: 'julio' },
 };
 const SESSION_KEY = 'sesion25pts_v1';
 const getSesion = () => { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch(e){ return null; } };

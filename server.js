@@ -5,14 +5,14 @@ const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-const AGENTES_IDS = ['ana', 'luis', 'caro', 'jose', 'mari'];
+const AGENTES_IDS = ['ana', 'luis', 'caro', 'jose', 'mari', 'julio'];
 const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
 const iso = d => d.toISOString().slice(0, 10);
 
 function blank() { return {}; }
 
 function seed() {
-  const perfiles = { ana: 1.25, luis: .95, caro: .55, jose: 1.05, mari: .8 };
+  const perfiles = { ana: 1.25, luis: .95, caro: .55, jose: 1.05, mari: .8, julio: 1.1 };
   const data = {};
   let rnd = 42; const rand = () => (rnd = (rnd * 9301 + 49297) % 233280) / 233280;
   for (const aid of AGENTES_IDS) {
