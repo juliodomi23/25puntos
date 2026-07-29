@@ -107,11 +107,11 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
   background:transparent;color:var(--ink);text-align:center;outline:none}
 
 /* ===== chart card ===== */
-.chart-card{padding:18px}
+.chart-card{padding:18px;position:relative}
+.meta-tag{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;color:var(--ink-2);
+  background:var(--card);padding:3px 9px;border-radius:99px;border:1px solid var(--line);z-index:3}
 .bars{display:flex;align-items:flex-end;gap:8px;height:150px;position:relative;margin-top:26px}
 .meta-line{position:absolute;left:0;right:0;border-top:2px dashed var(--ink-3);z-index:1}
-.meta-line span{position:absolute;right:0;top:-19px;font-size:10px;font-weight:700;color:var(--ink-2);
-  background:var(--card);padding:1px 6px;border-radius:6px;border:1px solid var(--line)}
 .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;position:relative}
 .bar{width:100%;max-width:38px;border-radius:6px 6px 0 0;background:var(--amber);transition:height .5s cubic-bezier(.22,1,.36,1);position:relative;z-index:2}
 .bar.hit{background:var(--good)}
@@ -376,8 +376,9 @@ function heroAgenteHTML(a, p){
 function chartSemanaHTML(sem){
   const max = Math.max(META*1.4,...sem.map(y=>y.pts));
   return `
+    <span class="meta-tag">meta ${META}</span>
     <div class="bars">
-      <div class="meta-line" style="bottom:${META/max*100}%"><span>meta ${META}</span></div>
+      <div class="meta-line" style="bottom:${META/max*100}%"></div>
       ${sem.map(x=>`<div class="bar-col ${x.f===F_HOY?'today':''}">
         <div class="bar ${x.pts>=META?'hit':''} ${x.pts===0?'zero':''}" style="height:${Math.max(x.pts/max*100,2)}%">
           ${x.pts>0?`<span class="v">${x.pts}</span>`:''}</div>
@@ -635,8 +636,9 @@ function vDuena(){
     <div>
       <h2><small>Últimos ${habiles.length} días hábiles</small>Tendencia del equipo</h2>
       <div class="card chart-card">
+        <span class="meta-tag">meta equipo ${metaEq}</span>
         <div class="bars">
-          <div class="meta-line" style="bottom:${metaEq/tMax*100}%"><span>meta equipo ${metaEq}</span></div>
+          <div class="meta-line" style="bottom:${metaEq/tMax*100}%"></div>
           ${tend.map(x=>`<div class="bar-col ${x.f===F_HOY?'today':''}">
             <div class="bar ${x.pts>=metaEq?'hit':''} ${x.pts===0?'zero':''}" style="height:${Math.max(x.pts/tMax*100,2)}%">
               <span class="v">${x.pts||''}</span></div>
