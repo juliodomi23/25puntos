@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel 25 Puntos — Demo</title>
+<title>Panel 25 Puntos — Leyva Asesores</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -226,14 +226,14 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
 <body>
 <div class="wrap">
   <header>
-    <div class="brand"><em>25</em> Puntos<small>Panel de desempeño</small></div>
+    <div class="brand"><em>25</em> Puntos<small>Leyva Asesores</small></div>
     <div class="hdr-right">
       <div class="today-pill"><span class="dot"></span><span id="hdrFecha"></span><small id="hdrSemana"></small></div>
       <button id="btnLogout" class="logout-btn" style="display:none">Cerrar sesión</button>
     </div>
   </header>
   <main id="app"></main>
-  <p class="footnote">Demo con datos de ejemplo · <b>Ámbar Rojo Studios</b><br>
+  <p class="footnote">Demo personalizada para <b>Leyva Asesores</b> · desarrollado por <b>Ámbar Rojo Studios</b><br>
   Puntaje: llamada 1 · cita 2 · cuestionario 2 · cierre 3 · solicitud 5 · referido 3</p>
 </div>
 
@@ -322,6 +322,7 @@ let sesion = null;
 function loginHTML(err){
   return `<div class="login-wrap"><form class="card login-card" id="loginForm">
     <h2>Iniciar sesión</h2>
+    <p style="margin:-8px 0 0;font-size:12px;color:var(--ink-3);font-weight:600">Leyva Asesores · Panel 25 Puntos</p>
     <label>Usuario<input name="user" autocomplete="username" required></label>
     <label>Contraseña<input name="pass" type="password" autocomplete="current-password" required></label>
     ${err?'<p class="login-err">Usuario o contraseña incorrectos.</p>':''}
