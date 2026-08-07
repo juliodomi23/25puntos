@@ -41,7 +41,7 @@ function seed() {
   return data;
 }
 
-let DB = { reg: seed(), pros: {} };
+let DB = { reg: seed(), pros: {}, pipe: {} };
 
 app.get('/api/state', (req, res) => res.json(DB));
 
@@ -50,7 +50,7 @@ app.post('/api/set', (req, res) => {
   if (!AGENTES_IDS.includes(agente) || !dia || !campo) return res.status(400).end();
   (DB.reg[agente] ||= {});
   (DB.reg[agente][dia] ||= blank());
-  DB.reg[agente][dia][campo] = campo === 'comision' ? Math.max(0, +value || 0) : Math.max(0, +value || 0);
+  DB.reg[agente][dia][campo] = Math.max(0, +value || 0);
   res.json({ ok: true });
 });
 
@@ -59,6 +59,30 @@ app.post('/api/pros', (req, res) => {
   if (!AGENTES_IDS.includes(agente) || index == null) return res.status(400).end();
   (DB.pros[agente] ||= ['', '', '', '', '']);
   DB.pros[agente][index] = String(value || '').slice(0, 80);
+  res.json({ ok: true });
+});
+
+// solicitudes de hoy: lista de montos capturados por el agente (el resto —
+// comisión, bono — se calcula en el cliente y solo se muestra a la dueña).
+app.post('/api/sol', (req, res) => {
+  const { agente, dia, list } = req.body || {};
+  if (!AGENTES_IDS.includes(agente) || !dia || !Array.isArray(list)) return res.status(400).end();
+  (DB.reg[agente] ||= {});
+  (DB.reg[agente][dia] ||= blank());
+  DB.reg[agente][dia].solicitudes = list.slice(0, 30).map(v => Math.max(0, +v || 0));
+  res.json({ ok: true });
+});
+
+// cierres en el horno: posibles cierres del agente (no depende del día).
+app.post('/api/pipe', (req, res) => {
+  const { agente, list } = req.body || {};
+  if (!AGENTES_IDS.includes(agente) || !Array.isArray(list)) return res.status(400).end();
+  DB.pipe[agente] = list.slice(0, 30).map(x => ({
+    prospecto: String(x?.prospecto || '').slice(0, 80),
+    monto: Math.max(0, +x?.monto || 0),
+    etapa: String(x?.etapa || '').slice(0, 40),
+    fecha: String(x?.fecha || '').slice(0, 10),
+  }));
   res.json({ ok: true });
 });
 

@@ -93,19 +93,31 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
 /* ===== counters ===== */
 .counters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(min-width:560px){.counters{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:900px){.counters{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:900px){.counters{grid-template-columns:repeat(5,1fr)}}
 .counter{padding:14px;display:flex;flex-direction:column;gap:10px}
 .counter .lbl{font-size:12px;font-weight:600;color:var(--ink-2);line-height:1.25;min-height:2.5em}
 .counter .lbl b{display:inline-block;background:var(--amber-soft);color:var(--amber);font-size:10px;font-weight:800;
   padding:2px 7px;border-radius:99px;margin-left:2px;white-space:nowrap}
-.ctr-row{display:flex;align-items:center;justify-content:space-between}
-.ctr-row .val{font-family:'Fraunces',serif;font-weight:900;font-size:30px;min-width:44px;text-align:center}
-.ctr-btn{width:44px;height:44px;border-radius:14px;border:1.5px solid var(--line);background:var(--paper);
+.ctr-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ctr-row .val{font-family:'Fraunces',serif;font-weight:900;font-size:30px;line-height:1}
+.ctr-earn{font-size:11px;font-weight:800;color:var(--amber)}
+.ctr-btns{display:flex;gap:8px;margin-top:auto}
+.ctr-btn{height:48px;border-radius:14px;border:1.5px solid var(--line);background:var(--paper);
   font-size:22px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .1s;line-height:1}
-.ctr-btn:active{transform:scale(.92);background:var(--amber-soft);border-color:var(--amber)}
+.ctr-btn[data-d="-1"]{flex:0 0 46px}
+.ctr-btn[data-d="1"]{flex:1;background:var(--ink);border-color:var(--ink);color:var(--paper);font-size:24px}
+.ctr-btn:active{transform:scale(.94);background:var(--amber);border-color:var(--amber);color:var(--paper)}
 .counter.money .ctr-row input{font-family:'Fraunces',serif;font-weight:900;font-size:24px;width:100%;border:0;
   background:transparent;color:var(--ink);text-align:center;outline:none}
 
+/* ===== bloque de seguimiento (no suma puntos), plegado por defecto ===== */
+.extra{margin-top:6px}
+.extra>summary{cursor:pointer;list-style:none;font-size:12px;font-weight:800;color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:.06em;padding:12px 2px;display:flex;align-items:center;gap:8px}
+.extra>summary::-webkit-details-marker{display:none}
+.extra>summary::before{content:"▸";font-size:11px;transition:transform .15s}
+.extra[open]>summary::before{transform:rotate(90deg)}
+.extra .counters{margin-bottom:6px}
 /* ===== chart card ===== */
 .chart-card{padding:18px;position:relative}
 .meta-tag{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;color:var(--ink-2);
@@ -136,6 +148,43 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
   display:grid;place-items:center;font-size:12px;font-weight:800;flex:0 0 auto}
 .plist input{border:0;background:transparent;font:inherit;color:var(--ink);width:100%;outline:none}
 .plist input::placeholder{color:var(--ink-3);font-weight:400}
+.plist .rm{border:0;background:transparent;color:var(--ink-3);font-size:16px;cursor:pointer;flex:0 0 auto}
+.plist .rm:hover{color:var(--bad)}
+
+/* ===== grupo de contadores (prospección / alta productividad) ===== */
+
+/* ===== pipeline / cierres en el horno (mobile-first: apilado, grid solo desde tablet) ===== */
+.pipe-row{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.pipe-row:last-child{border:0}
+.pipe-row input[data-pf="prospecto"]{grid-column:1/-1}
+.pipe-row input,.pipe-row select{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:var(--paper);color:var(--ink);width:100%;outline:none}
+.pipe-row input:focus,.pipe-row select:focus{border-color:var(--amber)}
+.pipe-row .rm{justify-self:end;align-self:center;border:0;background:transparent;color:var(--ink-3);font-size:18px;cursor:pointer;padding:4px 8px}
+.pipe-row .rm:hover{color:var(--bad)}
+@media(min-width:760px){
+  .pipe-row{grid-template-columns:1.4fr .8fr 1.2fr 1fr 28px;align-items:center;padding:10px 18px}
+  .pipe-row input[data-pf="prospecto"]{grid-column:auto}
+  .pipe-row input,.pipe-row select{font-size:12.5px;padding:7px 8px}
+  .pipe-row .rm{justify-self:auto;font-size:16px}
+}
+/* fila de solo lectura (resumen de la dueña): tarjeta apilada en mobile, tabla desde tablet */
+.pipe-row.ro{display:flex;flex-direction:column;gap:6px;padding:14px 18px;font-size:13px}
+.pipe-row.ro span{display:flex;justify-content:space-between;gap:10px;font-weight:600}
+.pipe-row.ro .mlbl{color:var(--ink-3);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.05em;flex:0 0 auto}
+.pipe-row.ro .ag{color:var(--ink-2);font-weight:700}
+.pipe-row.ro .m{font-weight:800}
+.pipe-head{display:none}
+@media(min-width:760px){
+  .pipe-row.ro{display:grid;grid-template-columns:1fr 1.2fr .9fr 1.1fr .9fr .9fr;gap:8px;padding:10px 18px;font-size:12.5px}
+  .pipe-row.ro span{display:block}
+  .pipe-row.ro .mlbl{display:none}
+  .pipe-head{display:grid;grid-template-columns:1fr 1.2fr .9fr 1.1fr .9fr .9fr;gap:8px;padding:0 18px 8px;font-size:10px;
+    font-weight:800;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+}
+.pipe-empty{padding:16px 18px;font-size:13px;color:var(--ink-3)}
+.pipe-add{margin:12px 18px 16px;width:calc(100% - 36px);border:1.5px dashed var(--line);background:transparent;
+  color:var(--ink-2);font:inherit;font-weight:700;font-size:13px;padding:11px 14px;border-radius:10px;cursor:pointer}
+.pipe-add:hover{border-color:var(--amber);color:var(--amber)}
 
 /* ===== owner ===== */
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
@@ -239,22 +288,27 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
 
 <script>
 /* ================== datos demo ================== */
-const PTS = { refObt:3, llam:1, citaObt:2, cuest:2, cierre:3, sol:5 };
+// sol (solicitudes) ya no es un contador simple: es una lista de montos
+// capturados por el agente, ver `solicitudes` más abajo.
+const PTS = { refObt:3, llam:1, citaObt:2, cuest:2, cierre:3 };
+const PTS_SOL = 5;
 const META = 25;
+// ponytail: tasa fija de comisión sobre el monto capturado — ajustar aquí
+// cuando la dueña defina el esquema real por producto/aseguradora (bono, etc).
+const COMISION_PCT = 0.30;
 const CAMPOS = [
-  {k:'llam',     lbl:'Llamadas realizadas', pts:1},
-  {k:'citaObt',  lbl:'Citas obtenidas',     pts:2},
-  {k:'refObt',   lbl:'Referidos obtenidos', pts:3},
-  {k:'refCont',  lbl:'Referidos contactados'},
-  {k:'citasTot', lbl:'Citas del día (total)'},
-  {k:'citasNvas',lbl:'Citas nuevas'},
-  {k:'cuestPlan',lbl:'Cuestionarios planeados'},
-  {k:'cuest',    lbl:'Cuestionarios realizados', pts:2},
-  {k:'cierrePlan',lbl:'Cierres planeados'},
-  {k:'cierre',   lbl:'Cierres realizados', pts:3},
-  {k:'sol',      lbl:'Solicitudes', pts:5},
-  {k:'comision', lbl:'Comisión estimada (MXN)', money:true},
+  {k:'refObt',   lbl:'Referidos obtenidos',     pts:3, grupo:'Prospección'},
+  {k:'refCont',  lbl:'Referidos contactados',          grupo:'Prospección'},
+  {k:'llam',     lbl:'Llamadas realizadas',      pts:1, grupo:'Prospección'},
+  {k:'citaObt',  lbl:'Citas obtenidas',          pts:2, grupo:'Prospección'},
+  {k:'citasTot', lbl:'Citas del día (total)',           grupo:'Alta productividad'},
+  {k:'citasNvas',lbl:'Citas nuevas',                    grupo:'Alta productividad'},
+  {k:'cuestPlan',lbl:'Cuestionarios planeados',         grupo:'Alta productividad'},
+  {k:'cuest',    lbl:'Cuestionarios realizados', pts:2, grupo:'Alta productividad'},
+  {k:'cierrePlan',lbl:'Cierres planeados',              grupo:'Alta productividad'},
+  {k:'cierre',   lbl:'Cierres realizados',       pts:3, grupo:'Alta productividad'},
 ];
+const ETAPAS = ['Cita agendada','Cuestionario','Entrevista de cierre','Esperando firma'];
 const AGENTES = [
   {id:'ana',  nombre:'Ana Torres',    color:'#B45309'},
   {id:'luis', nombre:'Luis Mendoza',  color:'#7C2D12'},
@@ -270,7 +324,7 @@ const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 
 // ponytail: estado vive en el servidor (server.js) para que Agente y Dueña
 // vean lo mismo en vivo; aquí solo se guarda una copia local para pintar.
-let DB = { reg:{}, pros:{} };
+let DB = { reg:{}, pros:{}, pipe:{} };
 async function postJSON(url, body){
   try { await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
   catch(e){ console.error('no se pudo sincronizar', e); }
@@ -278,13 +332,23 @@ async function postJSON(url, body){
 function diaDe(aid){
   if(!DB.reg[aid]) DB.reg[aid] = {};
   if(!DB.reg[aid][F_HOY]) DB.reg[aid][F_HOY] = blank();
-  return DB.reg[aid][F_HOY];
+  const r = DB.reg[aid][F_HOY];
+  if (!Array.isArray(r.solicitudes)) r.solicitudes = [];   // registros viejos (seed) sin este campo
+  return r;
 }
+function pipeDe(aid){ return DB.pipe[aid] || (DB.pipe[aid] = []); }
 
-const puntos = r => !r ? 0 : Object.entries(PTS).reduce((s,[k,v]) => s + (r[k]||0)*v, 0);
+// solicitudes: lista de montos que captura el agente (compatible con datos
+// viejos de la demo, que traían `sol` como contador y `comision` fija).
+const solList = r => Array.isArray(r?.solicitudes) ? r.solicitudes : null;
+const solCount = r => solList(r) ? solList(r).length : (r?.sol||0);
+const montoSol = r => solList(r) ? solList(r).reduce((s,v)=>s+(+v||0),0) : 0;
+const comisionEst = r => solList(r) ? montoSol(r)*COMISION_PCT : (r?.comision||0);
+
+const puntos = r => !r ? 0 : Object.entries(PTS).reduce((s,[k,v]) => s + (r[k]||0)*v, 0) + solCount(r)*PTS_SOL;
 const reg = (aid,f) => DB.reg[aid]?.[f] ?? null;
-const blank = () => Object.fromEntries(CAMPOS.map(c=>[c.k,0]));
-const money = n => '$'+n.toLocaleString('es-MX');
+const blank = () => { const o = Object.fromEntries(CAMPOS.map(c=>[c.k,0])); o.solicitudes = []; return o; };
+const money = n => '$'+Math.round(n).toLocaleString('es-MX');
 const inic = n => n.split(' ').map(p=>p[0]).join('');
 
 function rango(n){         /* últimos n días [{d,f}] */
@@ -400,15 +464,67 @@ function funnelHTML(fd){
 function datosAgente(aid){
   const sem = semana(aid);
   const tot = k => sem.reduce((s,d)=>s+(d.r?.[k]||0),0);
+  const totSol = sem.reduce((s,d)=>s+solCount(d.r),0);
   return { sem, tot,
-    funnel: [['Llamadas',tot('llam')],['Citas obtenidas',tot('citaObt')],['Cuestionarios',tot('cuest')],['Cierres',tot('cierre')],['Solicitudes',tot('sol')]] };
+    funnel: [['Llamadas',tot('llam')],['Citas obtenidas',tot('citaObt')],['Cuestionarios',tot('cuest')],['Cierres',tot('cierre')],['Solicitudes',totSol]] };
+}
+
+function counterHTML(c,r){
+  const n = r[c.k]||0;
+  return `<div class="card counter">
+    <div class="lbl">${c.lbl}${c.pts?`<b>+${c.pts} pt${c.pts>1?'s':''}</b>`:''}</div>
+    <div class="ctr-row">
+      <span class="val" id="v-${c.k}">${n}</span>
+      ${c.pts?`<span class="ctr-earn" id="e-${c.k}">${n?`${n*c.pts} pts`:''}</span>`:''}
+    </div>
+    <div class="ctr-btns">
+      <button class="ctr-btn" data-k="${c.k}" data-d="-1">−</button>
+      <button class="ctr-btn" data-k="${c.k}" data-d="1">+</button>
+    </div>
+  </div>`;
+}
+// los contadores que dan puntos van primero y visibles; los de seguimiento
+// (que no suman) quedan plegados para que el agente no vea 10 cajas iguales.
+function gruposHTML(r){
+  return `<div class="counters">${CAMPOS.filter(c=>c.pts).map(c=>counterHTML(c,r)).join('')}</div>`;
+}
+// el polling repinta la vista completa; recordar si el bloque estaba abierto
+let extraAbierto = false;
+function extraHTML(r){
+  const resto = CAMPOS.filter(c=>!c.pts);
+  return `<details class="extra" ${extraAbierto?'open':''}>
+      <summary>Seguimiento · no suma puntos (${resto.length})</summary>
+      <div class="counters">${resto.map(c=>counterHTML(c,r)).join('')}</div>
+    </details>`;
+}
+function solicitudesHTML(lista){
+  return `<div class="card">
+    ${lista.length===0?'<p class="pipe-empty">Sin solicitudes hoy.</p>':`
+    <ul class="plist">${lista.map((m,i)=>`<li><span class="num">${i+1}</span>
+      <input class="sol-in" data-sol="${i}" type="number" min="0" inputmode="numeric" value="${m||''}" placeholder="Monto de la prima ($)">
+      <button class="rm" data-solrm="${i}" title="Quitar">✕</button></li>`).join('')}</ul>`}
+    <button class="pipe-add" id="btnAddSol">+ Agregar solicitud (+${PTS_SOL} pts)</button>
+  </div>`;
+}
+function pipelineHTML(lista){
+  return `<div class="card">
+    ${lista.length===0?'<p class="pipe-empty">Sin cierres en proceso.</p>':lista.map((x,i)=>`
+    <div class="pipe-row">
+      <input data-pf="prospecto" data-pi="${i}" value="${(x.prospecto||'').replace(/"/g,'&quot;')}" placeholder="Prospecto">
+      <input data-pf="monto" data-pi="${i}" type="number" min="0" inputmode="numeric" value="${x.monto||''}" placeholder="Monto $">
+      <select data-pf="etapa" data-pi="${i}">${ETAPAS.map(e=>`<option ${x.etapa===e?'selected':''}>${e}</option>`).join('')}</select>
+      <input data-pf="fecha" data-pi="${i}" type="date" value="${x.fecha||''}">
+      <button class="rm" data-piperm="${i}" title="Quitar">✕</button>
+    </div>`).join('')}
+    <button class="pipe-add" id="btnAddPipe">+ Agregar posible cierre</button>
+  </div>`;
 }
 
 function vAgente(){
   const a = AGENTES.find(x=>x.id===agenteSel);
   const r = reg(a.id,F_HOY) || blank();
   const p = puntos(r);
-  const {sem, tot, funnel} = datosAgente(a.id);
+  const {sem, funnel} = datosAgente(a.id);
   const semPts = sem.reduce((s,d)=>s+d.pts,0);
   const pros = DB.pros[a.id] || ['','','','',''];
   const rch = racha(a.id);
@@ -425,21 +541,13 @@ function vAgente(){
   <div class="hero" id="heroA">${heroAgenteHTML(a,p)}</div>
   ${rch>=2?`<p style="font-size:13px;font-weight:700;color:var(--good);margin-top:12px">🔥 Racha: ${rch} días seguidos cumpliendo tu meta</p>`:''}
 
-  <h2><small>Captura de hoy</small>¿Qué hiciste hoy?</h2>
-  <div class="counters">${CAMPOS.map(c => c.money ? `
-    <div class="card counter money">
-      <div class="lbl">${c.lbl}</div>
-      <div class="ctr-row"><input type="number" min="0" data-k="${c.k}" value="${r[c.k]||0}" inputmode="numeric"></div>
-    </div>` : `
-    <div class="card counter">
-      <div class="lbl">${c.lbl}${c.pts?`<b>+${c.pts} pt${c.pts>1?'s':''}</b>`:''}</div>
-      <div class="ctr-row">
-        <button class="ctr-btn" data-k="${c.k}" data-d="-1">−</button>
-        <span class="val" id="v-${c.k}">${r[c.k]||0}</span>
-        <button class="ctr-btn" data-k="${c.k}" data-d="1">+</button>
-      </div>
-    </div>`).join('')}
-  </div>
+  <h2><small>Captura de hoy · toca + cada vez que lo hagas</small>¿Qué hiciste hoy?</h2>
+  <div id="gruposA">${gruposHTML(r)}</div>
+
+  <h2><small>Lo que más suma · +${PTS_SOL} pts c/u</small>Solicitudes de hoy</h2>
+  <div id="solA">${solicitudesHTML(r.solicitudes||[])}</div>
+
+  <div id="extraA">${extraHTML(r)}</div>
 
   <div class="grid-2">
     <div>
@@ -449,10 +557,11 @@ function vAgente(){
     <div>
       <h2><small>Semana</small>Tu embudo de venta</h2>
       <div class="card funnel" id="funnelA">${funnelHTML(funnel)}</div>
-      <p style="font-size:13px;color:var(--ink-2);margin-top:10px;font-weight:600" id="comA">
-        ${tot('comision')>0?`💰 Comisión estimada de la semana: <b style="color:var(--ink)">${money(tot('comision'))}</b>`:''}</p>
     </div>
   </div>
+
+  <h2><small>Prospección futura</small>Cierres en el horno</h2>
+  <div id="pipeA">${pipelineHTML(pipeDe(a.id))}</div>
 
   <h2><small>Prospección</small>Mis 5 mejores prospectos</h2>
   <ul class="card plist" style="max-width:560px">
@@ -477,11 +586,10 @@ function refreshAgente(){
   fill.style.width = Math.min(100,p/META*100)+'%';
   fill.classList.toggle('done', p>=META);
   $('#hBadge').classList.toggle('hidden', p<META);
-  const {sem, tot, funnel} = datosAgente(a.id);
+  const {sem, funnel} = datosAgente(a.id);
   $('#semPts').textContent = sem.reduce((s,d)=>s+d.pts,0);
   $('#chartA').innerHTML = chartSemanaHTML(sem);
   $('#funnelA').innerHTML = funnelHTML(funnel);
-  $('#comA').innerHTML = tot('comision')>0?`💰 Comisión estimada de la semana: <b style="color:var(--ink)">${money(tot('comision'))}</b>`:'';
 }
 
 function waMockHTML(rows, sinCap, cumplen, comTot, solTot){
@@ -533,8 +641,8 @@ function vDuena(){
     const sem = semana(a.id);
     return {a, r, p, rch:racha(a.id),
       semPts: sem.reduce((s,d)=>s+d.pts,0),
-      com: sem.reduce((s,d)=>s+(d.r?.comision||0),0),
-      sol: sem.reduce((s,d)=>s+(d.r?.sol||0),0),
+      com: sem.reduce((s,d)=>s+comisionEst(d.r),0),
+      sol: sem.reduce((s,d)=>s+solCount(d.r),0),
       diasOk: sem.filter(d=>d.pts>=META).length};
   });
   const cumplen = rows.filter(x=>x.p>=META).length;
@@ -546,6 +654,7 @@ function vDuena(){
   const cumplSem = Math.round(rows.reduce((s,x)=>s+x.diasOk,0)/(AGENTES.length*6)*100);
   const rank = [...rows].sort((x,y)=>y.semPts-x.semPts);
   const rMax = Math.max(1,...rank.map(x=>x.semPts));
+  const pipeTot = AGENTES.reduce((s,a)=>s+(DB.pipe[a.id]||[]).reduce((t,x)=>t+(+x.monto||0),0),0);
   const est = x => !x.r ? ['z','— Sin capturar'] : x.p>=META ? ['g','✓ Cumplió'] : x.p>=15 ? ['w','◐ En camino'] : ['b','✗ Atrasado'];
 
   /* tendencia equipo: pts totales por día hábil (14 días) */
@@ -556,7 +665,8 @@ function vDuena(){
 
   /* embudo equipo semanal */
   const totEq = k => rows.reduce((s,x)=>s+semana(x.a.id).reduce((t,d)=>t+(d.r?.[k]||0),0),0);
-  const funnelEq = [['Llamadas',totEq('llam')],['Citas obtenidas',totEq('citaObt')],['Cuestionarios',totEq('cuest')],['Cierres',totEq('cierre')],['Solicitudes',totEq('sol')]];
+  const solEq = rows.reduce((s,x)=>s+x.sol,0);
+  const funnelEq = [['Llamadas',totEq('llam')],['Citas obtenidas',totEq('citaObt')],['Cuestionarios',totEq('cuest')],['Cierres',totEq('cierre')],['Solicitudes',solEq]];
   const conv = (a,b) => b>0 ? Math.round(a/b*100) : 0;
 
   /* alertas */
@@ -596,6 +706,8 @@ function vDuena(){
       <div class="sub">meta semanal: ${META*6} pts</div></div>
     <div class="card tile"><div class="k">${cumplSem}<small>%</small></div><div class="t">Cumplimiento semanal</div>
       <div class="sub">días-agente en meta</div></div>
+    <div class="card tile"><div class="k">${money(pipeTot)}</div><div class="t">En pipeline (por cerrar)</div>
+      <div class="sub">posibles cierres capturados por el equipo</div></div>
   </div>
 
   <h2><small>Hoy</small>Semáforo del equipo</h2>
@@ -604,7 +716,7 @@ function vDuena(){
       return `<div class="card agent-row" data-goag="${x.a.id}">
         <span class="av" style="background:${x.a.color}">${inic(x.a.nombre)}</span>
         <div class="info"><div class="nm">${x.a.nombre}${x.rch>=3?`<span class="streak">🔥 ${x.rch}d</span>`:''}</div>
-          <div class="sub">${x.r?`${x.r.llam||0} llamadas · ${x.r.citaObt||0} citas · ${x.r.sol||0} solicitudes · sem: ${x.semPts} pts (${x.diasOk}/6 días en meta)`:'Sin actividad registrada hoy'}</div>
+          <div class="sub">${x.r?`${x.r.llam||0} llamadas · ${x.r.citaObt||0} citas · ${solCount(x.r)} solicitudes · sem: ${x.semPts} pts (${x.diasOk}/6 días en meta)`:'Sin actividad registrada hoy'}</div>
           <div class="mini-track"><i style="width:${Math.min(100,x.p/META*100)}%;background:${
             {g:'var(--good)',w:'var(--warn)',b:'var(--bad)',z:'var(--line)'}[cls]}"></i></div>
         </div>
@@ -665,18 +777,49 @@ function vDuena(){
       <div><div class="bar-h" style="width:${x.semPts/rMax*100}%"></div></div>
       <span class="val">${x.semPts}</span></div>`).join('')}
     <p style="font-size:11px;color:var(--ink-3);margin-top:4px">Puntos acumulados · meta semanal de referencia: ${META*6} pts (6 días)</p>
-  </div>`;
+  </div>
+
+  ${pipelineEqHTML()}`;
+}
+
+/* pipeline agregado: todos los posibles cierres de todo el equipo, solo lectura */
+function pipelineEqHTML(){
+  const filas = [];
+  AGENTES.forEach(a => (DB.pipe[a.id]||[]).forEach(x => filas.push({...x, agente:a.nombre.split(' ')[0]})));
+  filas.sort((x,y)=>(y.monto||0)-(x.monto||0));
+  const total = filas.reduce((s,x)=>s+(+x.monto||0),0);
+  return `
+  <h2><small>Prospección futura</small>Cierres en el horno · equipo</h2>
+  <div class="card" style="margin-bottom:8px">
+    ${filas.length===0?'<p class="pipe-empty">Nadie tiene posibles cierres capturados todavía.</p>':`
+    <div class="pipe-head"><span>Agente</span><span>Prospecto</span><span>Monto</span><span>Etapa</span><span>Fecha esp.</span><span>Comisión si cierra</span></div>
+    ${filas.map(x=>`<div class="pipe-row ro">
+      <span class="ag"><b class="mlbl">Agente</b>${x.agente}</span>
+      <span><b class="mlbl">Prospecto</b>${x.prospecto||'—'}</span>
+      <span class="m"><b class="mlbl">Monto</b>${x.monto?money(+x.monto):'—'}</span>
+      <span><b class="mlbl">Etapa</b>${x.etapa||'—'}</span>
+      <span><b class="mlbl">Fecha esp.</b>${x.fecha||'—'}</span>
+      <span class="m"><b class="mlbl">Comisión si cierra</b>${x.monto?money(+x.monto*COMISION_PCT):'—'}</span>
+    </div>`).join('')}`}
+  </div>
+  <p style="font-size:12px;color:var(--ink-2);font-weight:600">
+    💰 Total en pipeline: <b style="color:var(--ink)">${money(total)}</b> ·
+    posible comisión si cierra todo: <b style="color:var(--ink)">${money(total*COMISION_PCT)}</b></p>`;
 }
 
 /* ================== interacción ================== */
 function bind(){
   document.querySelectorAll('[data-ag]').forEach(b => b.onclick = () => { agenteSel=b.dataset.ag; render(); });
+  const extra = document.querySelector('.extra');
+  if (extra) extra.ontoggle = () => { extraAbierto = extra.open; };
   // la dueña ve el detalle en su propio panel; no salta al panel de un agente (login separa los roles)
   document.querySelectorAll('.ctr-btn').forEach(b => b.onclick = () => {
     const k=b.dataset.k, d=+b.dataset.d;
     const r=diaDe(agenteSel);
     r[k]=Math.max(0,(r[k]||0)+d);
     document.getElementById('v-'+k).textContent = r[k];   // solo el número
+    const earn = document.getElementById('e-'+k);         // "N pts" de ese contador
+    if (earn) earn.textContent = r[k] ? `${r[k]*PTS[k]} pts` : '';
     refreshAgente();                                       // hero + gráficas en sitio
     postJSON('/api/set', {agente:agenteSel, dia:F_HOY, campo:k, value:r[k]});
   });
@@ -690,10 +833,46 @@ function bind(){
     DB.pros[agenteSel][+i.dataset.pros]=i.value;
     postJSON('/api/pros', {agente:agenteSel, index:+i.dataset.pros, value:i.value});
   });
+
+  /* solicitudes de hoy (montos) */
+  const syncSol = () => {
+    const r = diaDe(agenteSel);
+    document.getElementById('solA').innerHTML = solicitudesHTML(r.solicitudes);
+    refreshAgente();
+    postJSON('/api/sol', {agente:agenteSel, dia:F_HOY, list:r.solicitudes});
+    bind();
+  };
+  const btnAddSol = document.getElementById('btnAddSol');
+  if (btnAddSol) btnAddSol.onclick = () => { diaDe(agenteSel).solicitudes.push(0); syncSol(); };
+  document.querySelectorAll('input[data-sol]').forEach(i => i.onchange = () => {
+    diaDe(agenteSel).solicitudes[+i.dataset.sol] = Math.max(0,+i.value||0); syncSol();
+  });
+  document.querySelectorAll('[data-solrm]').forEach(b => b.onclick = () => {
+    diaDe(agenteSel).solicitudes.splice(+b.dataset.solrm,1); syncSol();
+  });
+
+  /* cierres en el horno (pipeline) */
+  const syncPipe = () => {
+    const list = pipeDe(agenteSel);
+    document.getElementById('pipeA').innerHTML = pipelineHTML(list);
+    postJSON('/api/pipe', {agente:agenteSel, list});
+    bind();
+  };
+  const btnAddPipe = document.getElementById('btnAddPipe');
+  if (btnAddPipe) btnAddPipe.onclick = () => { pipeDe(agenteSel).push({prospecto:'',monto:0,etapa:ETAPAS[0],fecha:''}); syncPipe(); };
+  document.querySelectorAll('.pipe-row input[data-pf], .pipe-row select[data-pf]').forEach(el => el.onchange = () => {
+    const list = pipeDe(agenteSel), i = +el.dataset.pi, f = el.dataset.pf;
+    list[i][f] = f==='monto' ? Math.max(0,+el.value||0) : el.value;
+    postJSON('/api/pipe', {agente:agenteSel, list});
+  });
+  document.querySelectorAll('[data-piperm]').forEach(b => b.onclick = () => {
+    pipeDe(agenteSel).splice(+b.dataset.piperm,1); syncPipe();
+  });
 }
 
 async function cargarEstado(){
-  try { DB = await fetch('/api/state').then(r=>r.json()); } catch(e){ console.error('sin conexión al servidor', e); }
+  try { DB = await fetch('/api/state').then(r=>r.json()); DB.pipe ||= {}; DB.pros ||= {}; }
+  catch(e){ console.error('sin conexión al servidor', e); }
 }
 
 async function iniciarApp(){
