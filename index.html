@@ -136,7 +136,9 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
 .tour-nav button:hover{border-color:var(--amber)}
 
 /* ===== chart card ===== */
-.chart-card{padding:18px;position:relative}
+/* overflow-x: en la vista de la dueña la gráfica trae más días de los que
+   caben en un celular; que scrollee dentro de la tarjeta y no el body */
+.chart-card{padding:18px;position:relative;overflow-x:auto}
 .meta-tag{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;color:var(--ink-2);
   background:var(--card);padding:3px 9px;border-radius:99px;border:1px solid var(--line);z-index:3}
 .bars{display:flex;align-items:flex-end;gap:8px;height:150px;position:relative;margin-top:26px}
@@ -329,6 +331,13 @@ const CAMPOS = [
   {k:'cierre',   lbl:'Cierres realizados',       pts:3, grupo:'Alta productividad'},
 ];
 const ETAPAS = ['Cita agendada','Cuestionario','Entrevista de cierre','Esperando firma'];
+// las 4 listas de 5 que trae el formato de Excel en sus primeras filas
+const LISTAS = [
+  {k:'pros',  sub:'Prospección',   tit:'Mis 5 mejores prospectos',   ph:'Nombre del prospecto…'},
+  {k:'venta', sub:'Esta semana',   tit:'Oportunidades de venta',     ph:'A quién le puedo vender…'},
+  {k:'serv',  sub:'Esta semana',   tit:'Oportunidades de servicio',  ph:'A quién le doy seguimiento…'},
+  {k:'desa',  sub:'Esta semana',   tit:'Desarrollo personal',        ph:'Qué voy a mejorar…'},
+];
 const AGENTES = [
   {id:'ana',  nombre:'Ana Torres',    color:'#B45309'},
   {id:'luis', nombre:'Luis Mendoza',  color:'#7C2D12'},
@@ -357,6 +366,10 @@ function diaDe(aid){
   return r;
 }
 function pipeDe(aid){ return DB.pipe[aid] || (DB.pipe[aid] = []); }
+function listaDe(aid, k){
+  if (!DB.pros[aid] || Array.isArray(DB.pros[aid])) DB.pros[aid] = {pros: DB.pros[aid] || undefined};  // datos viejos: era un solo array
+  return DB.pros[aid][k] || (DB.pros[aid][k] = ['','','','','']);
+}
 
 // solicitudes: lista de montos que captura el agente (compatible con datos
 // viejos de la demo, que traían `sol` como contador y `comision` fija).
@@ -546,7 +559,6 @@ function vAgente(){
   const p = puntos(r);
   const {sem, funnel} = datosAgente(a.id);
   const semPts = sem.reduce((s,d)=>s+d.pts,0);
-  const pros = DB.pros[a.id] || ['','','','',''];
   const rch = racha(a.id);
 
   const soloUnAgente = sesion && sesion.rol==='agente' && sesion.ag;
@@ -583,11 +595,15 @@ function vAgente(){
   <h2><small>Prospección futura</small>Cierres en el horno</h2>
   <div id="pipeA">${pipelineHTML(pipeDe(a.id))}</div>
 
-  <h2><small>Prospección</small>Mis 5 mejores prospectos</h2>
-  <ul class="card plist" id="prosA" style="max-width:560px">
-    ${pros.map((v,i)=>`<li><span class="num">${i+1}</span>
-      <input data-pros="${i}" value="${v.replace(/"/g,'&quot;')}" placeholder="Nombre del prospecto…"></li>`).join('')}
-  </ul>`;
+  <div id="listasA" class="grid-2">${LISTAS.map(L=>`
+    <div>
+      <h2><small>${L.sub}</small>${L.tit}</h2>
+      <ul class="card plist">
+        ${listaDe(a.id,L.k).map((v,i)=>`<li><span class="num">${i+1}</span>
+          <input data-lista="${L.k}" data-i="${i}" value="${(v||'').replace(/"/g,'&quot;')}" placeholder="${L.ph}"></li>`).join('')}
+      </ul>
+    </div>`).join('')}
+  </div>`;
 }
 
 /* actualización en sitio: sin repintar la vista completa (sin parpadeo) */
@@ -848,10 +864,10 @@ function bind(){
     r[i.dataset.k]=Math.max(0,+i.value||0); refreshAgente();
     postJSON('/api/set', {agente:agenteSel, dia:F_HOY, campo:i.dataset.k, value:r[i.dataset.k]});
   });
-  document.querySelectorAll('input[data-pros]').forEach(i => i.onchange = () => {
-    if(!DB.pros[agenteSel]) DB.pros[agenteSel]=['','','','',''];
-    DB.pros[agenteSel][+i.dataset.pros]=i.value;
-    postJSON('/api/pros', {agente:agenteSel, index:+i.dataset.pros, value:i.value});
+  document.querySelectorAll('input[data-lista]').forEach(i => i.onchange = () => {
+    const k = i.dataset.lista, idx = +i.dataset.i;
+    listaDe(agenteSel,k)[idx] = i.value;
+    postJSON('/api/pros', {agente:agenteSel, lista:k, index:idx, value:i.value});
   });
 
   /* solicitudes de hoy (montos) */
@@ -901,7 +917,7 @@ const TOUR = [
   {sel:'#extraA', t:'Seguimiento (opcional)', d:'Los datos que <b>no</b> dan puntos —citas del día, planeados— viven aquí plegados para que tu captura de arriba sea rápida. Ábrelo solo cuando lo necesites.'},
   {sel:'#chartA', t:'Tu semana de un vistazo', d:'Los últimos 7 días con tu puntaje: verde es día cumplido. Al lado tienes tu embudo, para ver de cuántas llamadas te sale un cierre.'},
   {sel:'#pipeA', t:'Cierres en el horno', d:'Tus posibles cierres: prospecto, monto, en qué etapa va y para cuándo lo esperas. Así no se te pierde ninguno y la dirección ve lo que viene en camino.'},
-  {sel:'#prosA', t:'Tus 5 mejores prospectos', d:'La lista corta en la que te vas a enfocar. Escríbelos aquí y quedan guardados. ¡Listo, eso es todo el panel!'},
+  {sel:'#listasA', t:'Tus 4 listas de la semana', d:'Las mismas del formato de papel: tus 5 mejores prospectos, oportunidades de venta, de servicio y tu desarrollo personal. Escríbelas y quedan guardadas. ¡Listo, eso es todo el panel!'},
 ];
 let tourI = -1, tourEl = null;
 const tourActivo = () => tourI >= 0;

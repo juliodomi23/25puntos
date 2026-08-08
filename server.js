@@ -54,11 +54,14 @@ app.post('/api/set', (req, res) => {
   res.json({ ok: true });
 });
 
+// las 4 listas de 5 que trae el formato de Excel en sus primeras filas
+const LISTAS = ['pros', 'desa', 'venta', 'serv'];
 app.post('/api/pros', (req, res) => {
-  const { agente, index, value } = req.body || {};
-  if (!AGENTES_IDS.includes(agente) || index == null) return res.status(400).end();
-  (DB.pros[agente] ||= ['', '', '', '', '']);
-  DB.pros[agente][index] = String(value || '').slice(0, 80);
+  const { agente, lista = 'pros', index, value } = req.body || {};
+  if (!AGENTES_IDS.includes(agente) || !LISTAS.includes(lista) || index == null) return res.status(400).end();
+  (DB.pros[agente] ||= {});
+  (DB.pros[agente][lista] ||= ['', '', '', '', '']);
+  DB.pros[agente][lista][index] = String(value || '').slice(0, 80);
   res.json({ ok: true });
 });
 

@@ -68,6 +68,17 @@ Tarda ~8 minutos. Si algo falla, **no** se deploya.
 | 5.3 | Recargar | Los datos siguen ahí |
 | 5.4 | "✕" | Se borra la fila |
 
+## 5b. Las 4 listas del formato
+
+Son las mismas de las primeras filas del Excel: 5 mejores prospectos,
+oportunidades de venta, oportunidades de servicio y desarrollo personal.
+
+| # | Paso | Resultado esperado |
+|---|------|--------------------|
+| 5b.1 | Escribir en cada una de las 4 listas | Se guarda al salir del campo |
+| 5b.2 | Recargar | Los 4 textos siguen ahí |
+| 5b.3 | En escritorio | Se ven en 2 columnas; en móvil, apiladas |
+
 ## 6. Vista de la dueña (en vivo)
 
 > ⚠️ La sesión vive en `localStorage`, que es **compartido entre pestañas** del
@@ -85,7 +96,14 @@ Tarda ~8 minutos. Si algo falla, **no** se deploya.
 
 ## 7. Móvil
 
-Chrome DevTools → iPhone SE (375 px).
+Chrome DevTools → iPhone 14 (390 px). Si DevTools no está a mano, sirve
+abrir la consola en la página y montar la app en un iframe de 390 px:
+
+```js
+document.documentElement.innerHTML =
+  '<body style="margin:0;display:flex;justify-content:center;background:#333">' +
+  '<iframe src="/" style="width:390px;height:780px;border:0;background:#fff"></iframe></body>';
+```
 
 | # | Paso | Resultado esperado |
 |---|------|--------------------|
