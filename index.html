@@ -118,6 +118,81 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
 .extra>summary::before{content:"▸";font-size:11px;transition:transform .15s}
 .extra[open]>summary::before{transform:rotate(90deg)}
 .extra .counters{margin-bottom:6px}
+/* ===== pestañas del agente ===== */
+.tabs{display:flex;gap:6px;margin:14px 0 2px;border-bottom:1.5px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:0;background:transparent;font:inherit;font-weight:700;font-size:14px;color:var(--ink-3);
+  padding:10px 14px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab:hover{color:var(--ink-2)}
+.tab.on{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* ===== barra de día que se captura ===== */
+.dia-bar{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.dia-bar label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:700;
+  color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+.dia-bar input{font:inherit;font-size:14px;font-weight:600;padding:9px 12px;border-radius:10px;
+  border:1.5px solid var(--line);background:var(--card);color:var(--ink);outline:none}
+.dia-bar input:focus{border-color:var(--amber)}
+.dia-hoy{border:1.5px solid var(--line);background:var(--card);font:inherit;font-weight:700;font-size:12px;
+  padding:9px 14px;border-radius:10px;color:var(--ink-2);cursor:pointer}
+.dia-hoy:hover{border-color:var(--amber);color:var(--amber)}
+.dia-sello{font-size:11.5px;font-weight:700;color:var(--warn);background:var(--warn-soft);
+  padding:7px 12px;border-radius:99px}
+/* celda del heatmap capturada en retroactivo */
+.heat td.late::after{content:"✎";position:absolute;top:-2px;right:1px;font-size:9px;color:var(--warn)}
+.heat td{position:relative}
+
+/* ===== avatar con foto ===== */
+.av.foto,.av-xl.foto{background-size:cover;background-position:center;color:transparent;font-size:0}
+.av-xl{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;
+  font-size:26px;font-weight:800;color:#fff;flex:0 0 auto;font-family:'Fraunces',serif}
+
+/* ===== perfil ===== */
+.perfil{padding:20px;display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+.pf-foto{display:flex;flex-direction:column;align-items:center;gap:8px}
+.pf-subir{font-size:12px;font-weight:700;color:var(--amber);cursor:pointer}
+.pf-quitar{border:0;background:transparent;font:inherit;font-size:11px;font-weight:600;color:var(--ink-3);cursor:pointer}
+.pf-quitar:hover{color:var(--bad)}
+.pf-datos{flex:1;min-width:220px;display:flex;flex-direction:column;gap:12px}
+.pf-nombre{font-family:'Fraunces',serif;font-weight:900;font-size:22px}
+.perfil label,.meta-card label,.pf-pass label{display:flex;flex-direction:column;gap:5px;
+  font-size:12px;font-weight:700;color:var(--ink-2)}
+.perfil input,.meta-card input,.pf-pass input{font:inherit;font-size:15px;padding:10px 12px;border-radius:10px;
+  border:1.5px solid var(--line);background:var(--paper);color:var(--ink);outline:none;width:100%}
+.perfil input:focus,.meta-card input:focus,.pf-pass input:focus{border-color:var(--amber)}
+.meta-card{padding:18px;margin-bottom:10px}
+.meta-prog{height:10px;background:var(--gray-soft);border-radius:99px;margin-top:14px;overflow:hidden}
+.meta-prog .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#D97706,#F5C36B);transition:width .5s}
+.meta-prog .fill.done{background:linear-gradient(90deg,#4C9A50,#7FC183)}
+.meta-lbl{font-size:12px;font-weight:700;color:var(--ink-2);margin-top:8px;display:flex;justify-content:space-between;gap:8px}
+.meta-lbl .ok{color:var(--good)}
+.meta-vacia{font-size:12.5px;color:var(--ink-3);font-weight:600;margin-top:12px}
+.pf-pass{padding:18px;display:flex;flex-direction:column;gap:12px}
+.pf-pass button{border:0;background:var(--ink);color:var(--paper);font:inherit;font-weight:700;
+  font-size:14px;padding:12px;border-radius:10px;cursor:pointer}
+.pf-msg{font-size:12px;font-weight:700;margin:-4px 0 0}
+.pf-msg.ok{color:var(--good)}
+.pf-msg.err{color:var(--bad)}
+
+/* ===== referidos ===== */
+.ref-row{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.ref-row input[data-rf="nombre"]{grid-column:1/-1}
+.ref-row input,.ref-row select{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:8px;
+  padding:9px 10px;background:var(--paper);color:var(--ink);width:100%;outline:none}
+.ref-row input:focus,.ref-row select:focus{border-color:var(--amber)}
+.ref-row .rm{justify-self:end;align-self:center;border:0;background:transparent;color:var(--ink-3);
+  font-size:18px;cursor:pointer;padding:4px 8px}
+.ref-row .rm:hover{color:var(--bad)}
+.ref-head{display:none}
+@media(min-width:860px){
+  .ref-row{grid-template-columns:1.3fr 1.1fr 1.1fr .9fr 1fr 28px;align-items:center;padding:10px 18px}
+  .ref-row input[data-rf="nombre"]{grid-column:auto}
+  .ref-row input,.ref-row select{font-size:12.5px;padding:7px 8px}
+  .ref-row .rm{justify-self:auto;font-size:16px}
+  .ref-head{display:grid;grid-template-columns:1.3fr 1.1fr 1.1fr .9fr 1fr 28px;gap:10px;padding:14px 18px 8px;
+    font-size:10px;font-weight:800;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+}
+
 /* ===== áreas de mejora (vista dueña) ===== */
 .mejoras{display:grid;grid-template-columns:1fr;gap:10px}
 @media(min-width:760px){.mejoras{grid-template-columns:1fr 1fr}}
@@ -369,7 +444,11 @@ const AGENTES = [
 const hoy = new Date(); hoy.setHours(0,0,0,0);
 const iso = d => d.toISOString().slice(0,10);
 const F_HOY = iso(hoy);
+// día que se está capturando: normalmente hoy, pero el agente puede irse a un
+// día anterior que se le haya pasado (queda sellado como modificado).
+let diaSel = F_HOY;
 const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const fechaCorta = f => new Date(f+'T00:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long'});
 
 // ponytail: estado vive en el servidor (server.js) para que Agente y Dueña
 // vean lo mismo en vivo; aquí solo se guarda una copia local para pintar.
@@ -380,12 +459,37 @@ async function postJSON(url, body){
 }
 function diaDe(aid){
   if(!DB.reg[aid]) DB.reg[aid] = {};
-  if(!DB.reg[aid][F_HOY]) DB.reg[aid][F_HOY] = blank();
-  const r = DB.reg[aid][F_HOY];
+  if(!DB.reg[aid][diaSel]) DB.reg[aid][diaSel] = blank();
+  const r = DB.reg[aid][diaSel];
   if (!Array.isArray(r.solicitudes)) r.solicitudes = [];   // registros viejos (seed) sin este campo
   return r;
 }
 function pipeDe(aid){ return DB.pipe[aid] || (DB.pipe[aid] = []); }
+function refDe(aid){ return DB.ref[aid] || (DB.ref[aid] = []); }
+function perfilDe(aid){ return DB.perfil[aid] || (DB.perfil[aid] = {}); }
+
+const FUENTES = ['Por cliente','Por reunión o plática','Volanteo',
+                 'Centros de influencia','Redes sociales'];
+const OTRA = 'Otros (escribir)';
+const ESTADOS_REF = ['Por contactar','Contactado','Cita agendada','Cerrado','Descartado'];
+
+// avatar: foto si la subió, iniciales si no
+function avHTML(a, cls='av'){
+  const f = perfilDe(a.id).foto;
+  return f ? `<span class="${cls} foto" style="background-image:url('${f}')"></span>`
+           : `<span class="${cls}" style="background:${a.color}">${inic(a.nombre)}</span>`;
+}
+
+/* mes en curso: puntos y prima acumulados, para las metas mensuales */
+function mesDe(aid){
+  const y = hoy.getFullYear(), m = hoy.getMonth();
+  let pts = 0, prima = 0;
+  for (const [f, r] of Object.entries(DB.reg[aid] || {})){
+    const d = new Date(f + 'T00:00:00');
+    if (d.getFullYear() === y && d.getMonth() === m){ pts += puntos(r); prima += montoSol(r); }
+  }
+  return {pts, prima};
+}
 function listaDe(aid, k){
   if (!DB.pros[aid] || Array.isArray(DB.pros[aid])) DB.pros[aid] = {pros: DB.pros[aid] || undefined};  // datos viejos: era un solo array
   return DB.pros[aid][k] || (DB.pros[aid][k] = ['','','','','']);
@@ -424,15 +528,10 @@ function racha(aid){       /* días hábiles consecutivos cumpliendo meta, hacia
   return n;
 }
 
-/* ================== login (sin seguridad real, solo filtra la vista) ================== */
-// ponytail: usuario/contraseña fijos en el cliente — suficiente para una demo
-// de una tarde con 2 personas, no para producción real.
-const USERS = {
-  flordeliz: { pass: 'Leyva2026', rol: 'duena' },
-  julio:     { pass: 'Leyva2026', rol: 'agente', ag: 'julio' },
-  invitado:  { pass: 'Leyva2026', rol: 'agente', ag: 'invit' },   // para quien pruebe en la demo
-  martha:    { pass: 'Leyva2026', rol: 'agente', ag: 'martha' },  // agente real, arranca sin historial
-};
+/* ================== login ==================
+   las contraseñas viven en el servidor (`/api/login`) para que el agente pueda
+   cambiar la suya desde su perfil. Sigue sin ser seguridad real: no hay hash ni
+   sesión firmada, la sesión es solo un objeto en localStorage. */
 const SESSION_KEY = 'sesion25pts_v1';
 const getSesion = () => { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch(e){ return null; } };
 const setSesion = (user, s) => localStorage.setItem(SESSION_KEY, JSON.stringify({user, ...s}));
@@ -452,18 +551,24 @@ function loginHTML(err){
 function mostrarLogin(err){
   $('#app').innerHTML = loginHTML(err);
   $('#btnLogout').style.display = 'none';
-  document.getElementById('loginForm').onsubmit = e => {
+  document.getElementById('loginForm').onsubmit = async e => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    const u = fd.get('user').trim().toLowerCase(), p = fd.get('pass');
-    const def = USERS[u];
-    if (def && def.pass === p){ setSesion(u, {rol:def.rol, ag:def.ag}); iniciarApp(); }
-    else mostrarLogin(true);
+    const user = fd.get('user').trim().toLowerCase(), pass = fd.get('pass');
+    try {
+      const r = await fetch('/api/login', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({user, pass})});
+      if (!r.ok) return mostrarLogin(true);
+      const s = await r.json();
+      setSesion(s.user, {rol:s.rol, ag:s.ag});
+      iniciarApp();
+    } catch(err){ mostrarLogin(true); }
   };
 }
 
 /* ================== estado / router ================== */
 let vista = 'agente', agenteSel = 'ana';
+let secAgente = 'main';        // pestaña activa del agente: main | ref | perfil
 const $ = s => document.querySelector(s);
 const fechaLarga = hoy.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
 $('#hdrFecha').textContent = fechaLarga.charAt(0).toUpperCase()+fechaLarga.slice(1);
@@ -481,8 +586,10 @@ function heroAgenteHTML(a, p){
   const sugerencia = faltan<=0 ? '' :
     faltan>=5 ? `<b>1 solicitud</b> (5 pts) o <b>${Math.ceil(faltan/2)} citas</b> te acercan.` :
     faltan>=3 ? `Un <b>cierre</b> (3 pts) y casi la libras.` : `¡<b>${faltan} llamada${faltan>1?'s':''}</b> y la libras!`;
+  const fechaHero = diaSel===F_HOY ? fechaLarga
+    : new Date(diaSel+'T00:00:00').toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
   return `
-    <div class="date">Tu día · ${fechaLarga}</div>
+    <div class="date">${diaSel===F_HOY?'Tu día':'Día capturado'} · ${fechaHero}</div>
     <div class="hero-row">
       <div class="big-pts"><span id="hPts">${p}</span><span>/${META} pts</span></div>
       <div class="hero-msg" id="hMsg">${p>=META
@@ -575,9 +682,119 @@ function pipelineHTML(lista){
   </div>`;
 }
 
+/* ===== sección referidos ===== */
+function refFilaHTML(x, i){
+  // fuente fuera de la lista = una que escribió el agente en "Otros"
+  const esOtra = !FUENTES.includes(x.fuente || '');   // '' = eligió Otros y aún no escribe
+  return `<div class="ref-row">
+    <input data-rf="nombre" data-ri="${i}" value="${(x.nombre||'').replace(/"/g,'&quot;')}" placeholder="Nombre del referido">
+    <div class="ref-fuente">
+      <select data-fuentesel data-ri="${i}">
+        ${FUENTES.map(f=>`<option ${x.fuente===f?'selected':''}>${f}</option>`).join('')}
+        <option value="${OTRA}" ${esOtra?'selected':''}>${OTRA}</option>
+      </select>
+      ${esOtra?`<input data-rf="fuente" data-ri="${i}" value="${x.fuente.replace(/"/g,'&quot;')}" placeholder="¿De dónde?">`:''}
+    </div>
+    <input data-rf="quien" data-ri="${i}" value="${(x.quien||'').replace(/"/g,'&quot;')}" placeholder="¿Quién lo dio?">
+    <input data-rf="fecha" data-ri="${i}" type="date" value="${x.fecha||''}">
+    <select data-rf="estado" data-ri="${i}">${ESTADOS_REF.map(e=>`<option ${x.estado===e?'selected':''}>${e}</option>`).join('')}</select>
+    <button class="rm" data-refrm="${i}" title="Quitar">✕</button>
+  </div>`;
+}
+function vReferidos(a){
+  const lista = refDe(a.id);
+  // agrupa por lo que traiga cada referido, incluidas las fuentes escritas a mano
+  const cuenta = {};
+  for (const x of lista) if (x.fuente) cuenta[x.fuente] = (cuenta[x.fuente]||0)+1;
+  const porFuente = Object.entries(cuenta);
+  const maxF = Math.max(1,...porFuente.map(x=>x[1]));
+  const cerrados = lista.filter(x=>x.estado==='Cerrado').length;
+  const esteMes = lista.filter(x=>{ if(!x.fecha) return false;
+    const d=new Date(x.fecha+'T00:00:00'); return d.getMonth()===hoy.getMonth()&&d.getFullYear()===hoy.getFullYear(); }).length;
+  return `
+  <div class="tiles">
+    <div class="card tile"><div class="k">${lista.length}</div><div class="t">Referidos en total</div></div>
+    <div class="card tile"><div class="k">${esteMes}</div><div class="t">Agregados este mes</div></div>
+    <div class="card tile"><div class="k">${cerrados}</div><div class="t">Ya cerrados</div>
+      <div class="sub">${lista.length?Math.round(cerrados/lista.length*100):0}% de tus referidos</div></div>
+  </div>
+
+  <h2><small>Lo más valioso de tu cartera</small>¿De dónde vienen tus referidos?</h2>
+  <div class="card funnel">
+    ${porFuente.length===0 ? '<p class="pipe-empty" style="padding:0">Todavía no has registrado referidos. Agrégalos abajo y aquí verás de dónde vienen.</p>'
+    : porFuente.sort((x,y)=>y[1]-x[1]).map(([f,n])=>`
+      <div class="f-row"><span class="n">${f}</span>
+        <div><div class="bar-h" style="width:${n/maxF*100}%"></div></div>
+        <span class="val">${n}</span></div>`).join('')}
+  </div>
+
+  <h2><small>Tu cartera · quién te lo dio y en qué va</small>Mis referidos</h2>
+  <div id="refA">
+    <div class="card">
+      <div class="ref-head"><span>Referido</span><span>¿De dónde viene?</span><span>¿Quién lo dio?</span><span>Fecha</span><span>Estado</span><span></span></div>
+      ${lista.length===0 ? '<p class="pipe-empty">Sin referidos registrados.</p>' : lista.map(refFilaHTML).join('')}
+      <button class="pipe-add" id="btnAddRef">+ Agregar referido</button>
+    </div>
+  </div>`;
+}
+
+/* ===== sección perfil ===== */
+function vPerfil(a){
+  const p = perfilDe(a.id), m = mesDe(a.id);
+  const pctPts = p.metaPts ? Math.min(100, m.pts/p.metaPts*100) : 0;
+  const pctPrima = p.metaPrima ? Math.min(100, m.prima/p.metaPrima*100) : 0;
+  const mesNom = hoy.toLocaleDateString('es-MX',{month:'long'});
+  return `
+  <h2><small>Tu información</small>Mi perfil</h2>
+  <div class="card perfil">
+    <div class="pf-foto">
+      ${p.foto ? `<span class="av-xl foto" style="background-image:url('${p.foto}')"></span>`
+               : `<span class="av-xl" style="background:${a.color}">${inic(a.nombre)}</span>`}
+      <label class="pf-subir">Cambiar foto<input type="file" id="inFoto" accept="image/*" hidden></label>
+      ${p.foto ? '<button class="pf-quitar" id="btnQuitarFoto">Quitar</button>' : ''}
+    </div>
+    <div class="pf-datos">
+      <div class="pf-nombre">${a.nombre}</div>
+      <label>Teléfono<input data-pfc="tel" value="${(p.tel||'').replace(/"/g,'&quot;')}" placeholder="55 1234 5678"></label>
+      <label>En la promotora desde<input data-pfc="ingreso" type="date" value="${p.ingreso||''}"></label>
+    </div>
+  </div>
+
+  <h2><small>Además de tus 25 puntos diarios</small>Mis metas de ${mesNom}</h2>
+  <div class="grid-2">
+    <div class="card meta-card">
+      <label>Meta de puntos del mes<input data-pfc="metaPts" type="number" min="0" inputmode="numeric"
+        value="${p.metaPts||''}" placeholder="ej. 500"></label>
+      ${p.metaPts ? `
+        <div class="meta-prog"><div class="fill ${m.pts>=p.metaPts?'done':''}" style="width:${pctPts}%"></div></div>
+        <div class="meta-lbl"><b>${m.pts}</b> de ${p.metaPts} pts · ${Math.round(pctPts)}%
+          ${m.pts>=p.metaPts?'<span class="ok">✓ cumplida</span>':`<span>faltan ${p.metaPts-m.pts}</span>`}</div>`
+      : '<p class="meta-vacia">Ponte una meta y aquí verás cómo vas en el mes.</p>'}
+    </div>
+    <div class="card meta-card">
+      <label>Meta de prima del mes ($)<input data-pfc="metaPrima" type="number" min="0" inputmode="numeric"
+        value="${p.metaPrima||''}" placeholder="ej. 150000"></label>
+      ${p.metaPrima ? `
+        <div class="meta-prog"><div class="fill ${m.prima>=p.metaPrima?'done':''}" style="width:${pctPrima}%"></div></div>
+        <div class="meta-lbl"><b>${money(m.prima)}</b> de ${money(p.metaPrima)} · ${Math.round(pctPrima)}%
+          ${m.prima>=p.metaPrima?'<span class="ok">✓ cumplida</span>':`<span>faltan ${money(p.metaPrima-m.prima)}</span>`}</div>`
+      : '<p class="meta-vacia">La suma de las primas que captures este mes.</p>'}
+    </div>
+  </div>
+
+  <h2><small>Seguridad</small>Cambiar mi contraseña</h2>
+  <form class="card pf-pass" id="formPass" style="max-width:420px">
+    <label>Contraseña actual<input name="actual" type="password" autocomplete="current-password" required></label>
+    <label>Nueva contraseña<input name="nueva" type="password" autocomplete="new-password" minlength="6" required></label>
+    <p class="pf-msg" id="passMsg"></p>
+    <button type="submit">Cambiar contraseña</button>
+  </form>`;
+}
+
 function vAgente(){
   const a = AGENTES.find(x=>x.id===agenteSel);
-  const r = reg(a.id,F_HOY) || blank();
+  const r = reg(a.id,diaSel) || blank();
+  const esHoy = diaSel === F_HOY;
   const p = puntos(r);
   const {sem, funnel} = datosAgente(a.id);
   const semPts = sem.reduce((s,d)=>s+d.pts,0);
@@ -585,17 +802,34 @@ function vAgente(){
 
   const soloUnAgente = sesion && sesion.rol==='agente' && sesion.ag;
 
-  return `
-  ${soloUnAgente ? '' : `<div class="chips">${AGENTES.map(x=>`
+  const tabs = `<nav class="tabs" id="tabsA">
+    ${[['main','25 Puntos'],['ref','Referidos'],['perfil','Mi perfil']].map(([k,t])=>
+      `<button class="tab ${secAgente===k?'on':''}" data-sec="${k}">${t}</button>`).join('')}
+  </nav>`;
+
+  const chips = soloUnAgente ? '' : `<div class="chips">${AGENTES.map(x=>`
     <button class="chip ${x.id===agenteSel?'on':''}" data-ag="${x.id}">
-      <span class="av" style="background:${x.color}">${inic(x.nombre)}</span>${x.nombre.split(' ')[0]}
+      ${avHTML(x)}${x.nombre.split(' ')[0]}
     </button>`).join('')}
-  </div>`}
+  </div>`;
+
+  if (secAgente === 'ref')    return chips + tabs + vReferidos(a);
+  if (secAgente === 'perfil') return chips + tabs + vPerfil(a);
+
+  return `
+  ${chips}
+  ${tabs}
 
   <div class="hero" id="heroA">${heroAgenteHTML(a,p)}</div>
   ${rch>=2?`<p style="font-size:13px;font-weight:700;color:var(--good);margin-top:12px">🔥 Racha: ${rch} días seguidos cumpliendo tu meta</p>`:''}
 
-  <h2><small>Captura de hoy · toca + cada vez que lo hagas</small>¿Qué hiciste hoy?</h2>
+  <h2><small>${esHoy?'Captura de hoy · toca + cada vez que lo hagas':'Estás capturando un día anterior'}</small>${esHoy?'¿Qué hiciste hoy?':'¿Qué hiciste ese día?'}</h2>
+  <div class="dia-bar" id="diaBar">
+    <label>Día que estás capturando
+      <input type="date" id="inDia" value="${diaSel}" max="${F_HOY}"></label>
+    ${esHoy ? '' : `<button class="dia-hoy" id="btnHoy">← Volver a hoy</button>`}
+    ${r.modificado ? `<span class="dia-sello">✎ Capturado después · modificado el ${fechaCorta(r.modificado)}</span>` : ''}
+  </div>
   <div id="gruposA">${gruposHTML(r)}</div>
 
   <h2><small>Lo que más suma · +${PTS_SOL} pts c/u</small>Solicitudes de hoy</h2>
@@ -631,7 +865,7 @@ function vAgente(){
 /* actualización en sitio: sin repintar la vista completa (sin parpadeo) */
 function refreshAgente(){
   const a = AGENTES.find(x=>x.id===agenteSel);
-  const p = puntos(reg(a.id,F_HOY));
+  const p = puntos(reg(a.id,diaSel));
   const faltan = Math.max(0, META-p);
   const sugerencia = faltan<=0 ? '' :
     faltan>=5 ? `<b>1 solicitud</b> (5 pts) o <b>${Math.ceil(faltan/2)} citas</b> te acercan.` :
@@ -781,7 +1015,9 @@ function vDuena(){
     const p = puntos(reg(a.id,x.f));
     const cls = x.f===F_HOY&&!reg(a.id,x.f) ? 'z' : p>=META?'g':p>=15?'w':p>0?'b':'z';
     const tc = x.f===F_HOY?' today-col':'';
-    return `<td class="${cls}${tc}" title="${a.nombre} · ${x.d.toLocaleDateString('es-MX',{day:'numeric',month:'short'})} · ${p} pts">${p||'–'}</td>`;
+    // ✎ = ese día se capturó después, no el mismo día
+    const mod = reg(a.id,x.f)?.modificado;
+    return `<td class="${cls}${tc}${mod?' late':''}" title="${a.nombre} · ${x.d.toLocaleDateString('es-MX',{day:'numeric',month:'short'})} · ${p} pts${mod?` · capturado el ${fechaCorta(mod)}`:''}">${p||'–'}</td>`;
   };
 
   return `
@@ -878,6 +1114,7 @@ function vDuena(){
       <span><i style="background:var(--warn-soft)"></i>En camino (15–24)</span>
       <span><i style="background:var(--bad-soft)"></i>Atrasado (&lt;15)</span>
       <span><i style="background:var(--gray-soft)"></i>Sin captura</span>
+      <span><b style="color:var(--warn);margin-right:5px">✎</b>Capturado días después</span>
     </div>
   </div>
 
@@ -945,6 +1182,18 @@ function pipelineEqHTML(){
 /* ================== interacción ================== */
 function bind(){
   document.querySelectorAll('[data-ag]').forEach(b => b.onclick = () => { agenteSel=b.dataset.ag; render(); });
+  document.querySelectorAll('[data-sec]').forEach(b => b.onclick = () => {
+    secAgente = b.dataset.sec; render(); window.scrollTo(0,0);
+  });
+  bindReferidos();
+  bindPerfil();
+  const inDia = document.getElementById('inDia');
+  if (inDia) inDia.onchange = () => {
+    if (inDia.value && inDia.value <= F_HOY) { diaSel = inDia.value; render(); }
+    else inDia.value = diaSel;                       // no se capturan días futuros
+  };
+  const btnHoy = document.getElementById('btnHoy');
+  if (btnHoy) btnHoy.onclick = () => { diaSel = F_HOY; render(); };
   const extra = document.querySelector('.extra');
   if (extra) extra.ontoggle = () => { extraAbierto = extra.open; };
   // la dueña ve el detalle en su propio panel; no salta al panel de un agente (login separa los roles)
@@ -956,12 +1205,12 @@ function bind(){
     const earn = document.getElementById('e-'+k);         // "N pts" de ese contador
     if (earn) earn.textContent = r[k] ? `${r[k]*PTS[k]} pts` : '';
     refreshAgente();                                       // hero + gráficas en sitio
-    postJSON('/api/set', {agente:agenteSel, dia:F_HOY, campo:k, value:r[k]});
+    postJSON('/api/set', {agente:agenteSel, dia:diaSel, campo:k, value:r[k]});
   });
   document.querySelectorAll('input[data-k]').forEach(i => i.onchange = () => {
     const r=diaDe(agenteSel);
     r[i.dataset.k]=Math.max(0,+i.value||0); refreshAgente();
-    postJSON('/api/set', {agente:agenteSel, dia:F_HOY, campo:i.dataset.k, value:r[i.dataset.k]});
+    postJSON('/api/set', {agente:agenteSel, dia:diaSel, campo:i.dataset.k, value:r[i.dataset.k]});
   });
   document.querySelectorAll('input[data-lista]').forEach(i => i.onchange = () => {
     const k = i.dataset.lista, idx = +i.dataset.i;
@@ -974,7 +1223,7 @@ function bind(){
     const r = diaDe(agenteSel);
     document.getElementById('solA').innerHTML = solicitudesHTML(r.solicitudes);
     refreshAgente();
-    postJSON('/api/sol', {agente:agenteSel, dia:F_HOY, list:r.solicitudes});
+    postJSON('/api/sol', {agente:agenteSel, dia:diaSel, list:r.solicitudes});
     bind();
   };
   const btnAddSol = document.getElementById('btnAddSol');
@@ -1016,13 +1265,18 @@ const TOUR = [
   {sel:'#extraA', t:'Seguimiento (opcional)', d:'Los datos que <b>no</b> dan puntos —citas del día, planeados— viven aquí plegados para que tu captura de arriba sea rápida. Ábrelo solo cuando lo necesites.'},
   {sel:'#chartA', t:'Tu semana de un vistazo', d:'Los últimos 7 días con tu puntaje: verde es día cumplido. Al lado tienes tu embudo, para ver de cuántas llamadas te sale un cierre.'},
   {sel:'#pipeA', t:'Cierres en el horno', d:'Tus posibles cierres: prospecto, monto, en qué etapa va y para cuándo lo esperas. Así no se te pierde ninguno y la dirección ve lo que viene en camino.'},
-  {sel:'#listasA', t:'Tus 4 listas de la semana', d:'Las mismas del formato de papel: tus 5 mejores prospectos, oportunidades de venta, de servicio y tu desarrollo personal. Escríbelas y quedan guardadas. ¡Listo, eso es todo el panel!'},
+  {sel:'#listasA', t:'Tus 4 listas de la semana', d:'Las mismas del formato de papel: tus 5 mejores prospectos, oportunidades de venta, de servicio y tu desarrollo personal. Escríbelas y quedan guardadas.'},
+  {sel:'#tabsA', t:'Tus otras secciones', d:'En <b>Referidos</b> llevas tu cartera: quién te lo dio, de dónde viene y en qué va. En <b>Mi perfil</b> pones tu foto, tu teléfono y <b>tus metas del mes</b>. ¡Listo, eso es todo!'},
 ];
 let tourI = -1, tourEl = null;
 const tourActivo = () => tourI >= 0;
 
 function tourIr(i){
-  const paso = TOUR[i], el = document.querySelector(paso.sel);
+  const paso = TOUR[i];
+  // el tour recorre la sección principal; si estás en Referidos o Mi perfil,
+  // vuelve a ella antes de empezar (si no, los selectores no existen).
+  if (secAgente !== 'main'){ secAgente = 'main'; render(); }
+  const el = document.querySelector(paso.sel);
   if (!el) return tourFin();
   tourI = i; tourEl = el;
   $('#tour').hidden = false;
@@ -1065,8 +1319,87 @@ addEventListener('scroll', () => { if (tourActivo()) tourPintar(); }, {passive:t
 addEventListener('resize', () => { if (tourActivo()) tourPintar(); });
 addEventListener('keydown', e => { if (e.key==='Escape' && tourActivo()) tourFin(); });
 
+function bindReferidos(){
+  const sync = (repintar) => {
+    const list = refDe(agenteSel);
+    postJSON('/api/ref', {agente:agenteSel, list});
+    if (repintar) { render(); }
+  };
+  const btn = document.getElementById('btnAddRef');
+  if (btn) btn.onclick = () => {
+    refDe(agenteSel).unshift({nombre:'', fuente:FUENTES[0], quien:'', fecha:F_HOY, estado:ESTADOS_REF[0]});
+    sync(true);
+  };
+  document.querySelectorAll('[data-rf]').forEach(el => el.onchange = () => {
+    const l = refDe(agenteSel), i = +el.dataset.ri;
+    l[i][el.dataset.rf] = el.value;
+    // el estado y la fuente cambian los totales de arriba; el texto no
+    sync(el.dataset.rf === 'estado' || el.dataset.rf === 'fuente');
+  });
+  // el select de fuente: si eligen "Otros", deja el campo libre para escribirla
+  document.querySelectorAll('[data-fuentesel]').forEach(sel => sel.onchange = () => {
+    const l = refDe(agenteSel), i = +sel.dataset.ri;
+    l[i].fuente = sel.value === OTRA ? '' : sel.value;
+    render();
+    if (sel.value === OTRA) document.querySelector(`input[data-rf="fuente"][data-ri="${i}"]`)?.focus();
+    postJSON('/api/ref', {agente:agenteSel, list:l});
+  });
+  document.querySelectorAll('[data-refrm]').forEach(b => b.onclick = () => {
+    refDe(agenteSel).splice(+b.dataset.refrm, 1); sync(true);
+  });
+}
+
+function bindPerfil(){
+  document.querySelectorAll('[data-pfc]').forEach(el => el.onchange = () => {
+    const campo = el.dataset.pfc;
+    const val = (campo==='metaPts'||campo==='metaPrima') ? Math.max(0,+el.value||0) : el.value;
+    perfilDe(agenteSel)[campo] = val;
+    postJSON('/api/perfil', {agente:agenteSel, campo, value:val});
+    if (campo==='metaPts'||campo==='metaPrima') render();   // repinta la barra de avance
+  });
+
+  // foto: se reduce a 160px en el cliente para no mandar un JPG de 4 MB al server
+  const inFoto = document.getElementById('inFoto');
+  if (inFoto) inFoto.onchange = () => {
+    const file = inFoto.files[0]; if (!file) return;
+    const img = new Image();
+    img.onload = () => {
+      const L = 160, c = document.createElement('canvas'); c.width = c.height = L;
+      const lado = Math.min(img.width, img.height);
+      c.getContext('2d').drawImage(img, (img.width-lado)/2, (img.height-lado)/2, lado, lado, 0, 0, L, L);
+      const data = c.toDataURL('image/jpeg', .8);
+      perfilDe(agenteSel).foto = data;
+      postJSON('/api/perfil', {agente:agenteSel, campo:'foto', value:data});
+      render();
+      URL.revokeObjectURL(img.src);
+    };
+    img.src = URL.createObjectURL(file);
+  };
+  const btnQ = document.getElementById('btnQuitarFoto');
+  if (btnQ) btnQ.onclick = () => {
+    perfilDe(agenteSel).foto = '';
+    postJSON('/api/perfil', {agente:agenteSel, campo:'foto', value:''});
+    render();
+  };
+
+  const form = document.getElementById('formPass');
+  if (form) form.onsubmit = async e => {
+    e.preventDefault();
+    const fd = new FormData(form), msg = document.getElementById('passMsg');
+    try {
+      const r = await fetch('/api/pass', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({user:sesion.user, actual:fd.get('actual'), nueva:fd.get('nueva')})});
+      const j = await r.json().catch(()=>({}));
+      if (r.ok){ msg.className='pf-msg ok'; msg.textContent='Listo, tu contraseña quedó cambiada.'; form.reset(); }
+      else if (j.error==='corta'){ msg.className='pf-msg err'; msg.textContent='La nueva contraseña debe tener al menos 6 caracteres.'; }
+      else { msg.className='pf-msg err'; msg.textContent='Tu contraseña actual no es correcta.'; }
+    } catch(err){ document.getElementById('passMsg').textContent='No se pudo conectar con el servidor.'; }
+  };
+}
+
 async function cargarEstado(){
-  try { DB = await fetch('/api/state').then(r=>r.json()); DB.pipe ||= {}; DB.pros ||= {}; }
+  try { DB = await fetch('/api/state').then(r=>r.json());
+        DB.pipe ||= {}; DB.pros ||= {}; DB.ref ||= {}; DB.perfil ||= {}; }
   catch(e){ console.error('sin conexión al servidor', e); }
 }
 
@@ -1099,7 +1432,7 @@ async function iniciarApp(){
 }
 
 sesion = getSesion();
-if (sesion && USERS[sesion.user]) iniciarApp();
+if (sesion && sesion.rol) iniciarApp();
 else mostrarLogin(false);
 </script>
 </body>

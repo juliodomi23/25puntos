@@ -47,9 +47,73 @@ function seed() {
   return data;
 }
 
-let DB = { reg: seed(), pros: {}, pipe: {} };
+// usuarios: viven aquí, no en el cliente, para que se pueda cambiar la
+// contraseña. Sigue sin ser seguridad real (sin hash, sin sesión firmada),
+// pero al menos las contraseñas ya no viajan dentro del HTML.
+const USERS = {
+  flordeliz: { pass: 'Leyva2026', rol: 'duena' },
+  julio:     { pass: 'Leyva2026', rol: 'agente', ag: 'julio' },
+  invitado:  { pass: 'Leyva2026', rol: 'agente', ag: 'invit' },
+  martha:    { pass: 'Leyva2026', rol: 'agente', ag: 'martha' },
+};
 
+const PERFIL_CAMPOS = ['foto', 'tel', 'ingreso', 'metaPts', 'metaPrima'];
+const ESTADOS_REF = ['Por contactar', 'Contactado', 'Cita agendada', 'Cerrado', 'Descartado'];
+// la fuente se guarda como texto libre: el select ofrece las de siempre, pero
+// "Otros" deja escribir una nueva y esa también se agrupa en el desglose.
+
+let DB = { reg: seed(), pros: {}, pipe: {}, perfil: {}, ref: {} };
+
+// el estado es público para el panel; las contraseñas nunca salen de aquí
 app.get('/api/state', (req, res) => res.json(DB));
+
+app.post('/api/login', (req, res) => {
+  const { user, pass } = req.body || {};
+  const u = USERS[String(user || '').trim().toLowerCase()];
+  if (!u || u.pass !== pass) return res.status(401).json({ ok: false });
+  res.json({ ok: true, user: String(user).trim().toLowerCase(), rol: u.rol, ag: u.ag });
+});
+
+app.post('/api/pass', (req, res) => {
+  const { user, actual, nueva } = req.body || {};
+  const u = USERS[String(user || '').trim().toLowerCase()];
+  if (!u || u.pass !== actual) return res.status(401).json({ ok: false, error: 'actual' });
+  if (!nueva || String(nueva).length < 6) return res.status(400).json({ ok: false, error: 'corta' });
+  u.pass = String(nueva);
+  res.json({ ok: true });
+});
+
+app.post('/api/perfil', (req, res) => {
+  const { agente, campo, value } = req.body || {};
+  if (!AGENTES_IDS.includes(agente) || !PERFIL_CAMPOS.includes(campo)) return res.status(400).end();
+  (DB.perfil[agente] ||= {});
+  // la foto llega como data URL ya reducida en el cliente; se corta por si acaso
+  DB.perfil[agente][campo] = campo === 'foto' ? String(value || '').slice(0, 200000)
+    : (campo === 'metaPts' || campo === 'metaPrima') ? Math.max(0, +value || 0)
+    : String(value || '').slice(0, 60);
+  res.json({ ok: true });
+});
+
+app.post('/api/ref', (req, res) => {
+  const { agente, list } = req.body || {};
+  if (!AGENTES_IDS.includes(agente) || !Array.isArray(list)) return res.status(400).end();
+  DB.ref[agente] = list.slice(0, 200).map(x => ({
+    nombre: String(x?.nombre || '').slice(0, 80),
+    fuente: String(x?.fuente || '').slice(0, 40),
+    quien:  String(x?.quien || '').slice(0, 80),
+    fecha:  String(x?.fecha || '').slice(0, 10),
+    estado: ESTADOS_REF.includes(x?.estado) ? x.estado : ESTADOS_REF[0],
+  }));
+  res.json({ ok: true });
+});
+
+// trazabilidad: si se captura un día que no es hoy, queda sellado con la fecha
+// real en que se hizo. El sello lo pone el servidor, no el cliente.
+function sellar(reg, dia) {
+  const ahora = new Date();
+  const hoyIso = iso(new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()));
+  if (dia !== hoyIso) reg.modificado = hoyIso;
+}
 
 app.post('/api/set', (req, res) => {
   const { agente, dia, campo, value } = req.body || {};
@@ -57,6 +121,7 @@ app.post('/api/set', (req, res) => {
   (DB.reg[agente] ||= {});
   (DB.reg[agente][dia] ||= blank());
   DB.reg[agente][dia][campo] = Math.max(0, +value || 0);
+  sellar(DB.reg[agente][dia], dia);
   res.json({ ok: true });
 });
 
@@ -79,6 +144,7 @@ app.post('/api/sol', (req, res) => {
   (DB.reg[agente] ||= {});
   (DB.reg[agente][dia] ||= blank());
   DB.reg[agente][dia].solicitudes = list.slice(0, 30).map(v => Math.max(0, +v || 0));
+  sellar(DB.reg[agente][dia], dia);
   res.json({ ok: true });
 });
 
