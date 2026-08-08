@@ -361,6 +361,7 @@ const AGENTES = [
   {id:'jose', nombre:'José Aguilar',  color:'#4D7C0F'},
   {id:'mari', nombre:'María Salas',   color:'#0F766E'},
   {id:'julio',nombre:'Julio Domínguez',color:'#1D4ED8'},
+  {id:'invit',nombre:'Agente Invitado', color:'#6D28D9'},
 ];
 const hoy = new Date(); hoy.setHours(0,0,0,0);
 const iso = d => d.toISOString().slice(0,10);
@@ -426,6 +427,7 @@ function racha(aid){       /* días hábiles consecutivos cumpliendo meta, hacia
 const USERS = {
   flordeliz: { pass: 'Leyva2026', rol: 'duena' },
   julio:     { pass: 'Leyva2026', rol: 'agente', ag: 'julio' },
+  invitado:  { pass: 'Leyva2026', rol: 'agente', ag: 'invit' },   // para quien pruebe en la demo
 };
 const SESSION_KEY = 'sesion25pts_v1';
 const getSesion = () => { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch(e){ return null; } };
@@ -805,7 +807,7 @@ function vDuena(){
       return `<div class="card agent-row" data-goag="${x.a.id}">
         <span class="av" style="background:${x.a.color}">${inic(x.a.nombre)}</span>
         <div class="info"><div class="nm">${x.a.nombre}${x.rch>=3?`<span class="streak">🔥 ${x.rch}d</span>`:''}</div>
-          <div class="sub">${x.r?`${x.r.llam||0} llamadas · ${x.r.citaObt||0} citas · ${solCount(x.r)} solicitudes · sem: ${x.semPts} pts (${x.diasOk}/6 días en meta)`:'Sin actividad registrada hoy'}</div>
+          <div class="sub">${x.r?`${x.r.llam||0} ${(x.r.llam||0)===1?'llamada':'llamadas'} · ${x.r.citaObt||0} ${(x.r.citaObt||0)===1?'cita':'citas'} · ${solCount(x.r)} ${solCount(x.r)===1?'solicitud':'solicitudes'} · sem: ${x.semPts} pts (${x.diasOk}/6 días en meta)`:'Sin actividad registrada hoy'}</div>
           <div class="mini-track"><i style="width:${Math.min(100,x.p/META*100)}%;background:${
             {g:'var(--good)',w:'var(--warn)',b:'var(--bad)',z:'var(--line)'}[cls]}"></i></div>
         </div>

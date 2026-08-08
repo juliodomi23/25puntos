@@ -5,14 +5,16 @@ const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-const AGENTES_IDS = ['ana', 'luis', 'caro', 'jose', 'mari', 'julio'];
+// 'invit' es el agente que usa quien venga a la demo: tiene historial pero
+// el día de hoy arranca en cero, para que capture en vivo delante de la dueña.
+const AGENTES_IDS = ['ana', 'luis', 'caro', 'jose', 'mari', 'julio', 'invit'];
 const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
 const iso = d => d.toISOString().slice(0, 10);
 
 function blank() { return {}; }
 
 function seed() {
-  const perfiles = { ana: 1.25, luis: .95, caro: .55, jose: 1.05, mari: .8, julio: 1.1 };
+  const perfiles = { ana: 1.25, luis: .95, caro: .55, jose: 1.05, mari: .8, julio: 1.1, invit: 1 };
   const data = {};
   let rnd = 42; const rand = () => (rnd = (rnd * 9301 + 49297) % 233280) / 233280;
   for (const aid of AGENTES_IDS) {
@@ -31,7 +33,7 @@ function seed() {
       };
       r.comision = r.sol * (2800 + Math.round(rand() * 30) * 100);
       if (i === 0) {
-        if (aid === 'caro') continue;
+        if (aid === 'caro' || aid === 'invit') continue;   // hoy sin capturar
         for (const k in r) if (k !== 'comision') r[k] = Math.round(r[k] * 0.55);
         r.comision = r.sol * 3200;
       }

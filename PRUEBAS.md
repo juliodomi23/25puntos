@@ -5,7 +5,8 @@ Tarda ~8 minutos. Si algo falla, **no** se deploya.
 
 - **Local:** `node server.js` → http://localhost:3070
 - **Producción:** https://demo.ambarrojostudios.cloud/
-- **Usuarios:** `julio / Leyva2026` (agente) · `flordeliz / Leyva2026` (dueña)
+- **Usuarios:** `julio / Leyva2026` (agente) · `invitado / Leyva2026` (agente para
+  demos, con historial pero hoy en 0) · `flordeliz / Leyva2026` (dueña)
 
 > El estado vive en memoria del servidor: al reiniciar vuelve al seed.
 > Para repetir el tour desde cero: DevTools → Application → Local Storage →
