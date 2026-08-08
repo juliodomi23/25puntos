@@ -4,6 +4,12 @@ services:
     environment:
       - TZ=America/Mexico_City
       - PORT=3070
+      - DATA_DIR=/data
+    volumes:
+      - datos:/data
     expose:
       - "3070"
     restart: unless-stopped
+
+volumes:
+  datos:

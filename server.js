@@ -62,7 +62,45 @@ const ESTADOS_REF = ['Por contactar', 'Contactado', 'Cita agendada', 'Cerrado', 
 // la fuente se guarda como texto libre: el select ofrece las de siempre, pero
 // "Otros" deja escribir una nueva y esa también se agrupa en el desglose.
 
-let DB = { reg: seed(), pros: {}, pipe: {}, perfil: {}, ref: {} };
+/* ================== persistencia ==================
+   ponytail: un JSON en disco, no SQLite. Son 8 agentes y unos cientos de KB;
+   el día que esto crezca o haya varios procesos, ahí sí toca base de datos.
+   DATA_DIR apunta al volumen del contenedor (en EasyPanel, /data). */
+const fs = require('fs');
+const path = require('path');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const DB_FILE = path.join(DATA_DIR, 'db.json');
+
+function cargar() {
+  try {
+    const j = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    // las contraseñas cambiadas por los agentes viven en el mismo archivo
+    if (j.users) for (const [u, d] of Object.entries(j.users)) if (USERS[u]) USERS[u].pass = d.pass;
+    console.log('estado cargado de', DB_FILE);
+    return { reg: j.reg || {}, pros: j.pros || {}, pipe: j.pipe || {},
+             perfil: j.perfil || {}, ref: j.ref || {} };
+  } catch (e) {
+    if (e.code !== 'ENOENT') console.error('no se pudo leer el estado, arranco con seed:', e.message);
+    return null;
+  }
+}
+
+let guardando = null;
+function guardar() {                       // agrupa ráfagas de escrituras en una sola
+  if (guardando) return;
+  guardando = setTimeout(() => {
+    guardando = null;
+    try {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+      const users = Object.fromEntries(Object.entries(USERS).map(([u, d]) => [u, { pass: d.pass }]));
+      const tmp = DB_FILE + '.tmp';        // escribe y renombra: si se cae a media escritura, no corrompe
+      fs.writeFileSync(tmp, JSON.stringify({ ...DB, users }));
+      fs.renameSync(tmp, DB_FILE);
+    } catch (e) { console.error('no se pudo guardar el estado:', e.message); }
+  }, 400);
+}
+
+let DB = cargar() || { reg: seed(), pros: {}, pipe: {}, perfil: {}, ref: {} };
 
 // el estado es público para el panel; las contraseñas nunca salen de aquí
 app.get('/api/state', (req, res) => res.json(DB));
@@ -80,6 +118,7 @@ app.post('/api/pass', (req, res) => {
   if (!u || u.pass !== actual) return res.status(401).json({ ok: false, error: 'actual' });
   if (!nueva || String(nueva).length < 6) return res.status(400).json({ ok: false, error: 'corta' });
   u.pass = String(nueva);
+  guardar();
   res.json({ ok: true });
 });
 
@@ -91,6 +130,7 @@ app.post('/api/perfil', (req, res) => {
   DB.perfil[agente][campo] = campo === 'foto' ? String(value || '').slice(0, 200000)
     : (campo === 'metaPts' || campo === 'metaPrima') ? Math.max(0, +value || 0)
     : String(value || '').slice(0, 60);
+  guardar();
   res.json({ ok: true });
 });
 
@@ -104,6 +144,7 @@ app.post('/api/ref', (req, res) => {
     fecha:  String(x?.fecha || '').slice(0, 10),
     estado: ESTADOS_REF.includes(x?.estado) ? x.estado : ESTADOS_REF[0],
   }));
+  guardar();
   res.json({ ok: true });
 });
 
@@ -122,6 +163,7 @@ app.post('/api/set', (req, res) => {
   (DB.reg[agente][dia] ||= blank());
   DB.reg[agente][dia][campo] = Math.max(0, +value || 0);
   sellar(DB.reg[agente][dia], dia);
+  guardar();
   res.json({ ok: true });
 });
 
@@ -133,6 +175,7 @@ app.post('/api/pros', (req, res) => {
   (DB.pros[agente] ||= {});
   (DB.pros[agente][lista] ||= ['', '', '', '', '']);
   DB.pros[agente][lista][index] = String(value || '').slice(0, 80);
+  guardar();
   res.json({ ok: true });
 });
 
@@ -145,6 +188,7 @@ app.post('/api/sol', (req, res) => {
   (DB.reg[agente][dia] ||= blank());
   DB.reg[agente][dia].solicitudes = list.slice(0, 30).map(v => Math.max(0, +v || 0));
   sellar(DB.reg[agente][dia], dia);
+  guardar();
   res.json({ ok: true });
 });
 
@@ -158,6 +202,7 @@ app.post('/api/pipe', (req, res) => {
     etapa: String(x?.etapa || '').slice(0, 40),
     fecha: String(x?.fecha || '').slice(0, 10),
   }));
+  guardar();
   res.json({ ok: true });
 });
 
