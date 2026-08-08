@@ -118,6 +118,22 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
 .extra>summary::before{content:"▸";font-size:11px;transition:transform .15s}
 .extra[open]>summary::before{transform:rotate(90deg)}
 .extra .counters{margin-bottom:6px}
+/* ===== áreas de mejora (vista dueña) ===== */
+.mejoras{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:760px){.mejoras{grid-template-columns:1fr 1fr}}
+.mejora{padding:16px 18px}
+.mejora .mh{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.mejora .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-size:12px;font-weight:800;color:#fff;flex:0 0 auto}
+.mejora .nm{font-size:14px;font-weight:700}
+.mejora .area{font-size:11px;font-weight:800;color:var(--amber);text-transform:uppercase;letter-spacing:.06em}
+.mejora.ok .area{color:var(--good)}
+.mejora .dato{font-size:13px;color:var(--ink-2);font-weight:600;line-height:1.45}
+.mejora .dato .vs{color:var(--ink-3)}
+.mejora .tip{font-size:12.5px;line-height:1.5;color:var(--ink);margin-top:8px;
+  border-left:3px solid var(--amber-soft);padding-left:10px}
+.mejora.ok .tip{border-left-color:var(--good-soft)}
+
 /* ===== tour guiado (spotlight) ===== */
 #tour{position:fixed;inset:0;z-index:60;pointer-events:none}
 #tour[hidden]{display:none}
@@ -705,6 +721,43 @@ function vDuena(){
   const funnelEq = [['Llamadas',totEq('llam')],['Citas obtenidas',totEq('citaObt')],['Cuestionarios',totEq('cuest')],['Cierres',totEq('cierre')],['Solicitudes',solEq]];
   const conv = (a,b) => b>0 ? Math.round(a/b*100) : 0;
 
+  /* áreas de mejora: el eslabón del embudo donde cada agente está más abajo
+     que el equipo. El Excel las llama "áreas de prospección / alta productividad". */
+  const totsAg = aid => { const sem = semana(aid); const t = k => sem.reduce((s,d)=>s+(d.r?.[k]||0),0);
+    return {llam:t('llam'), citaObt:t('citaObt'), cuest:t('cuest'), cierre:t('cierre'),
+            sol:sem.reduce((s,d)=>s+solCount(d.r),0)}; };
+  const porAg = Object.fromEntries(AGENTES.map(a=>[a.id, totsAg(a.id)]));
+  const ESLABONES = [
+    {lbl:'Contacto efectivo', num:'citaObt', den:'llam',    uni:['citas','llamadas'], sng:['cita','llamada'],
+     tip:'Marca bastante pero saca pocas citas — revisar el guion de la llamada y a quién le está marcando.'},
+    {lbl:'Cuestionario',      num:'cuest',   den:'citaObt', uni:['cuestionarios','citas'], sng:['cuestionario','cita'],
+     tip:'Consigue citas pero no levanta el cuestionario — practicar la transición de la cita a la entrevista.'},
+    {lbl:'Cierre',            num:'cierre',  den:'cuest',   uni:['cierres','cuestionarios'], sng:['cierre','cuestionario'],
+     tip:'Llega al cuestionario pero no cierra — vale la pena acompañar una entrevista de cierre.'},
+    // solicitudes sobre cuestionarios, no sobre cierres: una solicitud puede
+    // entrar sin cierre registrado y el porcentaje se pasaba de 100%.
+    {lbl:'Solicitud',         num:'sol',     den:'cuest',   uni:['solicitudes','cuestionarios'], sng:['solicitud','cuestionario'],
+     tip:'Trabaja al prospecto pero no aterriza la solicitud — revisar objeciones de precio y formas de pago.'},
+  ];
+  const ratioEq = e => { const n = AGENTES.reduce((s,a)=>s+porAg[a.id][e.num],0),
+                               d = AGENTES.reduce((s,a)=>s+porAg[a.id][e.den],0); return d>0 ? n/d : 0; };
+  const llamProm = AGENTES.reduce((s,a)=>s+porAg[a.id].llam,0)/AGENTES.length;
+  function areaDe(aid){
+    const t = porAg[aid];
+    let peor = null;
+    for (const e of ESLABONES){
+      if (t[e.den] < 3) continue;                     // sin volumen no se saca conclusión
+      const req = ratioEq(e); if (!req) continue;
+      const mio = t[e.num]/t[e.den];
+      const brecha = mio/req;
+      if (brecha < .85 && (!peor || brecha < peor.brecha)) peor = {e, mio, req, brecha, t};
+    }
+    if (peor) return {tipo:'eslabon', ...peor};
+    if (t.llam < llamProm*.7) return {tipo:'volumen', t};
+    return {tipo:'ok', t};
+  }
+  const areas = AGENTES.map(a=>({a, ar:areaDe(a.id)}));
+
   /* alertas */
   const alertas = [];
   for (const x of sinCap) alertas.push(['b','📵',`<b>${x.a.nombre}</b> no ha capturado actividad hoy. <span class="auto">WHATSAPP 8 PM</span>`]);
@@ -764,6 +817,36 @@ function vDuena(){
   <ul class="card alerts">
     ${alertas.map(([cls,ico,txt])=>`<li><span class="ico ${cls}">${ico}</span><span>${txt}</span></li>`).join('')}
   </ul>
+
+  <h2><small>Últimos 7 días · para la junta semanal</small>En qué puede mejorar cada agente</h2>
+  <div class="mejoras">
+    ${areas.map(({a,ar})=>{
+      const pct = v => Math.round(v*100)+'%';
+      if (ar.tipo==='eslabon'){ const e=ar.e;
+        return `<div class="card mejora">
+          <div class="mh"><span class="av" style="background:${a.color}">${inic(a.nombre)}</span>
+            <div><div class="nm">${a.nombre}</div><div class="area">${e.lbl}</div></div></div>
+          <div class="dato"><b>${ar.t[e.num]}</b> ${(ar.t[e.num]===1?e.sng:e.uni)[0]} de <b>${ar.t[e.den]}</b> ${(ar.t[e.den]===1?e.sng:e.uni)[1]}
+            · ${pct(ar.mio)} <span class="vs">· equipo ${pct(ar.req)}</span></div>
+          <div class="tip">${e.tip}</div>
+        </div>`; }
+      if (ar.tipo==='volumen')
+        return `<div class="card mejora">
+          <div class="mh"><span class="av" style="background:${a.color}">${inic(a.nombre)}</span>
+            <div><div class="nm">${a.nombre}</div><div class="area">Volumen de prospección</div></div></div>
+          <div class="dato"><b>${ar.t.llam}</b> llamadas en la semana <span class="vs">vs ${Math.round(llamProm)} del promedio</span></div>
+          <div class="tip">Sus conversiones están bien; lo que le falta es actividad. Subir el número de llamadas diarias.</div>
+        </div>`;
+      return `<div class="card mejora ok">
+        <div class="mh"><span class="av" style="background:${a.color}">${inic(a.nombre)}</span>
+          <div><div class="nm">${a.nombre}</div><div class="area">Sin foco de mejora</div></div></div>
+        <div class="dato"><b>${ar.t.llam}</b> llamadas · <b>${ar.t.citaObt}</b> citas · <b>${ar.t.sol}</b> solicitudes</div>
+        <div class="tip">Va parejo o mejor que el equipo en todo el embudo. Puede apoyar a quien va más atrás.</div>
+      </div>`;
+    }).join('')}
+  </div>
+  <p style="font-size:12px;color:var(--ink-2);font-weight:600;margin-top:10px">
+    Se calcula solo, comparando cada eslabón del embudo de cada agente contra el del equipo.</p>
 
   <h2><small>Automatización incluida</small>Así les llega por WhatsApp</h2>
   <div class="wa-grid">${waMockHTML(rows, sinCap, cumplen, comTot, solTot)}</div>
