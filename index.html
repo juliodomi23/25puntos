@@ -720,7 +720,7 @@ function vReferidos(a){
   </div>
 
   <h2><small>Lo más valioso de tu cartera</small>¿De dónde vienen tus referidos?</h2>
-  <div class="card funnel">
+  <div class="card funnel" id="fuentesA">
     ${porFuente.length===0 ? '<p class="pipe-empty" style="padding:0">Todavía no has registrado referidos. Agrégalos abajo y aquí verás de dónde vienen.</p>'
     : porFuente.sort((x,y)=>y[1]-x[1]).map(([f,n])=>`
       <div class="f-row"><span class="n">${f}</span>
@@ -746,7 +746,7 @@ function vPerfil(a){
   const mesNom = hoy.toLocaleDateString('es-MX',{month:'long'});
   return `
   <h2><small>Tu información</small>Mi perfil</h2>
-  <div class="card perfil">
+  <div class="card perfil" id="perfilCard">
     <div class="pf-foto">
       ${p.foto ? `<span class="av-xl foto" style="background-image:url('${p.foto}')"></span>`
                : `<span class="av-xl" style="background:${a.color}">${inic(a.nombre)}</span>`}
@@ -761,7 +761,7 @@ function vPerfil(a){
   </div>
 
   <h2><small>Además de tus 25 puntos diarios</small>Mis metas de ${mesNom}</h2>
-  <div class="grid-2">
+  <div class="grid-2" id="metasA">
     <div class="card meta-card">
       <label>Meta de puntos del mes<input data-pfc="metaPts" type="number" min="0" inputmode="numeric"
         value="${p.metaPts||''}" placeholder="ej. 500"></label>
@@ -1258,24 +1258,33 @@ function bind(){
    ponytail: overlay propio de ~50 líneas en vez de driver.js/intro.js —
    el "hueco" es un box-shadow gigante, no hay que recortar nada. */
 const TOUR_KEY = 'tour25pts_v1';
+// cada paso vive en una sección (main / ref / perfil); el tour cambia de
+// pestaña solo cuando toca.
 const TOUR = [
   {sel:'#heroA', t:'Tu meta del día', d:'Aquí ves los puntos que llevas hoy y los que te faltan para llegar a 25. La barra se mueve sola cada vez que capturas algo, no hay que darle guardar.'},
+  {sel:'#diaBar', t:'¿Se te pasó un día?', d:'Normalmente capturas el día de hoy, pero si el viernes se te fue, cambia la fecha aquí y llénalo. Queda guardado con una marca de que se capturó después — así el dato no se pierde y la dirección sabe cuándo lo registraste.'},
   {sel:'#gruposA', t:'Captura con un toque', d:'Estas 5 tarjetas son las que dan puntos. Cada vez que hagas una llamada, saques una cita, un referido, un cuestionario o un cierre, toca el botón grande <b>+</b>. Debajo del número ves los puntos que llevas ganados en cada una.'},
   {sel:'#solA', t:'Lo que más suma: tus solicitudes', d:'Cada solicitud vale <b>+5 puntos</b>. Agrégala y anota el monto de la prima. El monto lo usa la dirección para el reporte; a ti te suma los 5 puntos igual.'},
   {sel:'#extraA', t:'Seguimiento (opcional)', d:'Los datos que <b>no</b> dan puntos —citas del día, planeados— viven aquí plegados para que tu captura de arriba sea rápida. Ábrelo solo cuando lo necesites.'},
   {sel:'#chartA', t:'Tu semana de un vistazo', d:'Los últimos 7 días con tu puntaje: verde es día cumplido. Al lado tienes tu embudo, para ver de cuántas llamadas te sale un cierre.'},
   {sel:'#pipeA', t:'Cierres en el horno', d:'Tus posibles cierres: prospecto, monto, en qué etapa va y para cuándo lo esperas. Así no se te pierde ninguno y la dirección ve lo que viene en camino.'},
   {sel:'#listasA', t:'Tus 4 listas de la semana', d:'Las mismas del formato de papel: tus 5 mejores prospectos, oportunidades de venta, de servicio y tu desarrollo personal. Escríbelas y quedan guardadas.'},
-  {sel:'#tabsA', t:'Tus otras secciones', d:'En <b>Referidos</b> llevas tu cartera: quién te lo dio, de dónde viene y en qué va. En <b>Mi perfil</b> pones tu foto, tu teléfono y <b>tus metas del mes</b>. ¡Listo, eso es todo!'},
+  {sel:'#tabsA', t:'Tus tres secciones', d:'Hasta aquí la de <b>25 Puntos</b>, tu captura del día a día. Te enseño rápido las otras dos.'},
+
+  {sec:'ref', sel:'#refA', t:'Tu cartera de referidos', d:'Aquí no es un contador: es la lista de tus referidos con <b>quién te lo dio</b>, <b>de dónde viene</b>, cuándo lo agregaste y en qué va (por contactar, contactado, cita, cerrado). Así no se te queda ninguno olvidado.'},
+  {sec:'ref', sel:'#fuentesA', t:'De dónde te llegan', d:'Con eso, el panel te dice solo qué te está funcionando: si el volanteo no te da nada y los centros de influencia sí, ya sabes dónde meterle tiempo. Si tu fuente no está en la lista, elige <b>Otros</b> y escríbela.'},
+
+  {sec:'perfil', sel:'#perfilCard', t:'Tu perfil', d:'Tu foto, tu teléfono y desde cuándo estás en la promotora. Aquí abajo también puedes <b>cambiar tu contraseña</b> cuando quieras.'},
+  {sec:'perfil', sel:'#metasA', t:'Tus metas del mes', d:'Además de los 25 puntos diarios, ponte <b>tus propias metas del mes</b>: una de puntos y una de prima. La barra se va llenando sola con lo que capturas. Los 25 de cada día son el hábito; esto es el resultado. ¡Listo, eso es todo!'},
 ];
 let tourI = -1, tourEl = null;
 const tourActivo = () => tourI >= 0;
 
 function tourIr(i){
   const paso = TOUR[i];
-  // el tour recorre la sección principal; si estás en Referidos o Mi perfil,
-  // vuelve a ella antes de empezar (si no, los selectores no existen).
-  if (secAgente !== 'main'){ secAgente = 'main'; render(); }
+  // cada paso sabe en qué pestaña vive; el tour se cambia solo a la que toca
+  const sec = paso.sec || 'main';
+  if (secAgente !== sec){ secAgente = sec; render(); }
   const el = document.querySelector(paso.sel);
   if (!el) return tourFin();
   tourI = i; tourEl = el;
@@ -1293,6 +1302,8 @@ function tourIr(i){
   el.scrollIntoView({block: centrado ? 'center' : 'start'});   // instantáneo: medimos justo después
   if (!centrado) scrollBy(0, -80);                             // que no quede bajo el header
   tourPintar();
+  // el layout se asienta un frame después (fuentes, imágenes); reajusta el hueco
+  requestAnimationFrame(() => { if (tourActivo()) tourPintar(); });
 }
 
 // solo reposiciona (el contenido lo pinta tourIr); se llama también al hacer scroll
@@ -1314,6 +1325,7 @@ function tourFin(){
   tourI = -1; tourEl = null;
   $('#tour').hidden = true;
   localStorage.setItem(TOUR_KEY, '1');
+  if (secAgente !== 'main'){ secAgente = 'main'; render(); }   // devolverlo a su captura
 }
 addEventListener('scroll', () => { if (tourActivo()) tourPintar(); }, {passive:true});
 addEventListener('resize', () => { if (tourActivo()) tourPintar(); });
