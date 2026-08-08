@@ -128,6 +128,8 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
 .mejora .nm{font-size:14px;font-weight:700}
 .mejora .area{font-size:11px;font-weight:800;color:var(--amber);text-transform:uppercase;letter-spacing:.06em}
 .mejora.ok .area{color:var(--good)}
+.mejora.nuevo .area{color:var(--ink-3)}
+.mejora.nuevo .tip{border-left-color:var(--gray-soft)}
 .mejora .dato{font-size:13px;color:var(--ink-2);font-weight:600;line-height:1.45}
 .mejora .dato .vs{color:var(--ink-3)}
 .mejora .tip{font-size:12.5px;line-height:1.5;color:var(--ink);margin-top:8px;
@@ -362,6 +364,7 @@ const AGENTES = [
   {id:'mari', nombre:'María Salas',   color:'#0F766E'},
   {id:'julio',nombre:'Julio Domínguez',color:'#1D4ED8'},
   {id:'invit',nombre:'Agente Invitado', color:'#6D28D9'},
+  {id:'martha',nombre:'Martha Blanco',  color:'#BE185D'},
 ];
 const hoy = new Date(); hoy.setHours(0,0,0,0);
 const iso = d => d.toISOString().slice(0,10);
@@ -428,6 +431,7 @@ const USERS = {
   flordeliz: { pass: 'Leyva2026', rol: 'duena' },
   julio:     { pass: 'Leyva2026', rol: 'agente', ag: 'julio' },
   invitado:  { pass: 'Leyva2026', rol: 'agente', ag: 'invit' },   // para quien pruebe en la demo
+  martha:    { pass: 'Leyva2026', rol: 'agente', ag: 'martha' },  // agente real, arranca sin historial
 };
 const SESSION_KEY = 'sesion25pts_v1';
 const getSesion = () => { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch(e){ return null; } };
@@ -746,6 +750,9 @@ function vDuena(){
   const llamProm = AGENTES.reduce((s,a)=>s+porAg[a.id].llam,0)/AGENTES.length;
   function areaDe(aid){
     const t = porAg[aid];
+    // agente que apenas entra: no hay semana que comparar, y señalarle un área
+    // delante de la dueña con dos días de datos sería injusto.
+    if (semana(aid).filter(d=>d.r).length < 2) return {tipo:'nuevo', t};
     let peor = null;
     for (const e of ESLABONES){
       if (t[e.den] < 3) continue;                     // sin volumen no se saca conclusión
@@ -832,6 +839,13 @@ function vDuena(){
             · ${pct(ar.mio)} <span class="vs">· equipo ${pct(ar.req)}</span></div>
           <div class="tip">${e.tip}</div>
         </div>`; }
+      if (ar.tipo==='nuevo')
+        return `<div class="card mejora nuevo">
+          <div class="mh"><span class="av" style="background:${a.color}">${inic(a.nombre)}</span>
+            <div><div class="nm">${a.nombre}</div><div class="area">Apenas empieza</div></div></div>
+          <div class="dato"><b>${ar.t.llam}</b> ${ar.t.llam===1?'llamada':'llamadas'} · <b>${ar.t.citaObt}</b> ${ar.t.citaObt===1?'cita':'citas'} · <b>${ar.t.sol}</b> ${ar.t.sol===1?'solicitud':'solicitudes'}</div>
+          <div class="tip">Todavía no hay semana completa para compararla con el equipo. En la próxima junta ya se puede ver su embudo.</div>
+        </div>`;
       if (ar.tipo==='volumen')
         return `<div class="card mejora">
           <div class="mh"><span class="av" style="background:${a.color}">${inic(a.nombre)}</span>

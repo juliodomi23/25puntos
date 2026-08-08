@@ -7,7 +7,10 @@ app.use(express.static(__dirname));
 
 // 'invit' es el agente que usa quien venga a la demo: tiene historial pero
 // el día de hoy arranca en cero, para que capture en vivo delante de la dueña.
-const AGENTES_IDS = ['ana', 'luis', 'caro', 'jose', 'mari', 'julio', 'invit'];
+const AGENTES_IDS = ['ana', 'luis', 'caro', 'jose', 'mari', 'julio', 'invit', 'martha'];
+// martha es una agente real: arranca sin nada de historial, todo lo que
+// aparezca en su panel lo capturó ella.
+const SIN_HISTORIAL = ['martha'];
 const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
 const iso = d => d.toISOString().slice(0, 10);
 
@@ -19,6 +22,7 @@ function seed() {
   let rnd = 42; const rand = () => (rnd = (rnd * 9301 + 49297) % 233280) / 233280;
   for (const aid of AGENTES_IDS) {
     data[aid] = {};
+    if (SIN_HISTORIAL.includes(aid)) continue;
     for (let i = 29; i >= 0; i--) {
       const d = new Date(hoy); d.setDate(d.getDate() - i);
       if (d.getDay() === 0) continue;
