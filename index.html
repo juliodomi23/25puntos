@@ -126,6 +126,26 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
 .tab:hover{color:var(--ink-2)}
 .tab.on{color:var(--ink);border-bottom-color:var(--amber)}
 
+/* ===== modal de referido (dialog nativo: backdrop y Esc gratis) ===== */
+/* margin:auto explícito: el reset de arriba pisa el del user-agent y el
+   dialog se iría a la esquina en vez de centrarse */
+#dlgRef{border:0;border-radius:18px;padding:0;max-width:min(400px,calc(100vw - 32px));width:100%;margin:auto;
+  background:var(--card);color:var(--ink);box-shadow:0 30px 70px -20px rgba(42,33,24,.55)}
+#dlgRef::backdrop{background:rgba(42,33,24,.55)}
+#dlgRef form{padding:22px;display:flex;flex-direction:column;gap:12px}
+#dlgRef h3{font-family:'Fraunces',serif;font-weight:900;font-size:19px;letter-spacing:-.01em}
+#dlgRef .dlg-sub{font-size:12.5px;color:var(--ink-2);line-height:1.45;margin:-6px 0 2px}
+#dlgRef label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;color:var(--ink-2)}
+#dlgRef label[hidden]{display:none}   /* si no, el display:flex gana y se ve siempre */
+#dlgRef input,#dlgRef select{font:inherit;font-size:15px;padding:11px 12px;border-radius:10px;
+  border:1.5px solid var(--line);background:var(--paper);color:var(--ink);outline:none;width:100%}
+#dlgRef input:focus,#dlgRef select:focus{border-color:var(--amber)}
+.dlg-btns{display:flex;gap:8px;margin-top:6px}
+.dlg-btns button{flex:1;font:inherit;font-weight:700;font-size:14px;padding:12px;border-radius:10px;cursor:pointer}
+.dlg-btns .sec{border:1.5px solid var(--line);background:var(--paper);color:var(--ink-2)}
+.dlg-btns .pri{border:0;background:var(--ink);color:var(--paper)}
+.dlg-btns .sec:hover{border-color:var(--amber);color:var(--amber)}
+
 /* ===== barra de día que se captura ===== */
 .dia-bar{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .dia-bar label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:700;
@@ -400,6 +420,20 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
 </div>
 
 <div id="tour" hidden><div id="tourHole"></div><div id="tourBox"></div></div>
+
+<dialog id="dlgRef">
+  <form method="dialog" id="formRef">
+    <h3>¿Quién te lo dio?</h3>
+    <p class="dlg-sub">Anótalo ahora que lo tienes fresco. Después lo completas en <b>Referidos</b>.</p>
+    <label>Nombre del referido<input name="nombre" autocomplete="off" placeholder="Ej. Sra. Gómez"></label>
+    <label>¿De dónde viene?<select name="fuente" id="dlgFuente"></select></label>
+    <label id="dlgOtraWrap" hidden>Escribe de dónde<input name="otra" autocomplete="off" placeholder="Ej. Iglesia"></label>
+    <div class="dlg-btns">
+      <button type="button" id="dlgLuego" class="sec">Ahorita no</button>
+      <button type="submit" class="pri">Guardar referido</button>
+    </div>
+  </form>
+</dialog>
 
 <script>
 /* ================== datos demo ================== */
@@ -1206,6 +1240,9 @@ function bind(){
     if (earn) earn.textContent = r[k] ? `${r[k]*PTS[k]} pts` : '';
     refreshAgente();                                       // hero + gráficas en sitio
     postJSON('/api/set', {agente:agenteSel, dia:diaSel, campo:k, value:r[k]});
+    // al sumar un referido, preguntar de quién es mientras lo tiene fresco.
+    // El punto ya quedó: si cierra el modal sin llenar nada, no se pierde nada.
+    if (k === 'refObt' && d === 1) pedirDatosReferido();
   });
   document.querySelectorAll('input[data-k]').forEach(i => i.onchange = () => {
     const r=diaDe(agenteSel);
@@ -1271,7 +1308,7 @@ const TOUR = [
   {sel:'#listasA', t:'Tus 4 listas de la semana', d:'Las mismas del formato de papel: tus 5 mejores prospectos, oportunidades de venta, de servicio y tu desarrollo personal. Escríbelas y quedan guardadas.'},
   {sel:'#tabsA', t:'Tus tres secciones', d:'Hasta aquí la de <b>25 Puntos</b>, tu captura del día a día. Te enseño rápido las otras dos.'},
 
-  {sec:'ref', sel:'#refA', t:'Tu cartera de referidos', d:'Aquí no es un contador: es la lista de tus referidos con <b>quién te lo dio</b>, <b>de dónde viene</b>, cuándo lo agregaste y en qué va (por contactar, contactado, cita, cerrado). Así no se te queda ninguno olvidado.'},
+  {sec:'ref', sel:'#refA', t:'Tu cartera de referidos', d:'Aquí no es un contador: es la lista de tus referidos con <b>quién te lo dio</b>, <b>de dónde viene</b>, cuándo lo agregaste y en qué va. Cada vez que sumas un referido con el <b>+</b>, el panel te pregunta de quién es y lo deja aquí para que lo termines cuando puedas.'},
   {sec:'ref', sel:'#fuentesA', t:'De dónde te llegan', d:'Con eso, el panel te dice solo qué te está funcionando: si el volanteo no te da nada y los centros de influencia sí, ya sabes dónde meterle tiempo. Si tu fuente no está en la lista, elige <b>Otros</b> y escríbela.'},
 
   {sec:'perfil', sel:'#perfilCard', t:'Tu perfil', d:'Tu foto, tu teléfono y desde cuándo estás en la promotora. Aquí abajo también puedes <b>cambiar tu contraseña</b> cuando quieras.'},
@@ -1330,6 +1367,26 @@ function tourFin(){
 addEventListener('scroll', () => { if (tourActivo()) tourPintar(); }, {passive:true});
 addEventListener('resize', () => { if (tourActivo()) tourPintar(); });
 addEventListener('keydown', e => { if (e.key==='Escape' && tourActivo()) tourFin(); });
+
+/* modal al sumar un referido: captura lo mínimo (quién y de dónde) y lo deja
+   en la sección de Referidos para terminarlo después. */
+function pedirDatosReferido(){
+  const dlg = $('#dlgRef'), form = $('#formRef');
+  const sel = $('#dlgFuente'), otraWrap = $('#dlgOtraWrap');
+  sel.innerHTML = FUENTES.map(f=>`<option>${f}</option>`).join('') + `<option value="${OTRA}">${OTRA}</option>`;
+  form.reset(); otraWrap.hidden = true;
+  sel.onchange = () => { otraWrap.hidden = sel.value !== OTRA; if (!otraWrap.hidden) form.otra.focus(); };
+  $('#dlgLuego').onclick = () => dlg.close();
+  form.onsubmit = () => {                       // method="dialog": el submit cierra solo
+    const nombre = form.nombre.value.trim();
+    const fuente = sel.value === OTRA ? form.otra.value.trim() : sel.value;
+    if (!nombre && !fuente) return;             // no guardar una fila vacía
+    refDe(agenteSel).unshift({nombre, fuente, quien:'', fecha:diaSel, estado:ESTADOS_REF[0]});
+    postJSON('/api/ref', {agente:agenteSel, list:refDe(agenteSel)});
+  };
+  dlg.showModal();
+  form.nombre.focus();
+}
 
 function bindReferidos(){
   const sync = (repintar) => {
