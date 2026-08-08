@@ -118,6 +118,23 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
 .extra>summary::before{content:"▸";font-size:11px;transition:transform .15s}
 .extra[open]>summary::before{transform:rotate(90deg)}
 .extra .counters{margin-bottom:6px}
+/* ===== tour guiado (spotlight) ===== */
+#tour{position:fixed;inset:0;z-index:60;pointer-events:none}
+#tour[hidden]{display:none}
+#tourHole{position:absolute;border-radius:18px;pointer-events:none;
+  box-shadow:0 0 0 9999px rgba(42,33,24,.74),0 0 0 3px var(--amber) inset;
+  transition:top .3s cubic-bezier(.22,1,.36,1),left .3s cubic-bezier(.22,1,.36,1),width .3s,height .3s}
+#tourBox{position:absolute;width:min(340px,calc(100vw - 24px));background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:18px 18px 14px;box-shadow:0 24px 60px -20px rgba(0,0,0,.55);pointer-events:auto}
+#tourBox h4{font-family:'Fraunces',serif;font-weight:900;font-size:17px;letter-spacing:-.01em}
+#tourBox p{font-size:13.5px;line-height:1.5;color:var(--ink-2);margin-top:6px}
+.tour-nav{display:flex;align-items:center;gap:8px;margin-top:14px}
+.tour-nav .step{font-size:11px;font-weight:800;color:var(--ink-3);letter-spacing:.06em;margin-right:auto}
+.tour-nav button{font:inherit;font-weight:700;font-size:13px;padding:9px 14px;border-radius:10px;cursor:pointer;
+  border:1.5px solid var(--line);background:var(--paper);color:var(--ink-2)}
+.tour-nav button.pri{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.tour-nav button:hover{border-color:var(--amber)}
+
 /* ===== chart card ===== */
 .chart-card{padding:18px;position:relative}
 .meta-tag{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;color:var(--ink-2);
@@ -278,6 +295,7 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
     <div class="brand"><em>25</em> Puntos<small>Leyva Asesores</small></div>
     <div class="hdr-right">
       <div class="today-pill"><span class="dot"></span><span id="hdrFecha"></span><small id="hdrSemana"></small></div>
+      <button id="btnTour" class="logout-btn" style="display:none">? Cómo funciona</button>
       <button id="btnLogout" class="logout-btn" style="display:none">Cerrar sesión</button>
     </div>
   </header>
@@ -285,6 +303,8 @@ h2 small{font-family:'Sora';font-weight:600;font-size:11px;color:var(--ink-3);le
   <p class="footnote">Demo personalizada para <b>Leyva Asesores</b> · desarrollado por <b>Ámbar Rojo Studios</b><br>
   Puntaje: llamada 1 · cita 2 · cuestionario 2 · cierre 3 · solicitud 5 · referido 3</p>
 </div>
+
+<div id="tour" hidden><div id="tourHole"></div><div id="tourBox"></div></div>
 
 <script>
 /* ================== datos demo ================== */
@@ -564,7 +584,7 @@ function vAgente(){
   <div id="pipeA">${pipelineHTML(pipeDe(a.id))}</div>
 
   <h2><small>Prospección</small>Mis 5 mejores prospectos</h2>
-  <ul class="card plist" style="max-width:560px">
+  <ul class="card plist" id="prosA" style="max-width:560px">
     ${pros.map((v,i)=>`<li><span class="num">${i+1}</span>
       <input data-pros="${i}" value="${v.replace(/"/g,'&quot;')}" placeholder="Nombre del prospecto…"></li>`).join('')}
   </ul>`;
@@ -870,6 +890,62 @@ function bind(){
   });
 }
 
+/* ================== tour guiado (spotlight) ==================
+   ponytail: overlay propio de ~50 líneas en vez de driver.js/intro.js —
+   el "hueco" es un box-shadow gigante, no hay que recortar nada. */
+const TOUR_KEY = 'tour25pts_v1';
+const TOUR = [
+  {sel:'#heroA', t:'Tu meta del día', d:'Aquí ves los puntos que llevas hoy y los que te faltan para llegar a 25. La barra se mueve sola cada vez que capturas algo, no hay que darle guardar.'},
+  {sel:'#gruposA', t:'Captura con un toque', d:'Estas 5 tarjetas son las que dan puntos. Cada vez que hagas una llamada, saques una cita, un referido, un cuestionario o un cierre, toca el botón grande <b>+</b>. Debajo del número ves los puntos que llevas ganados en cada una.'},
+  {sel:'#solA', t:'Lo que más suma: tus solicitudes', d:'Cada solicitud vale <b>+5 puntos</b>. Agrégala y anota el monto de la prima. El monto lo usa la dirección para el reporte; a ti te suma los 5 puntos igual.'},
+  {sel:'#extraA', t:'Seguimiento (opcional)', d:'Los datos que <b>no</b> dan puntos —citas del día, planeados— viven aquí plegados para que tu captura de arriba sea rápida. Ábrelo solo cuando lo necesites.'},
+  {sel:'#chartA', t:'Tu semana de un vistazo', d:'Los últimos 7 días con tu puntaje: verde es día cumplido. Al lado tienes tu embudo, para ver de cuántas llamadas te sale un cierre.'},
+  {sel:'#pipeA', t:'Cierres en el horno', d:'Tus posibles cierres: prospecto, monto, en qué etapa va y para cuándo lo esperas. Así no se te pierde ninguno y la dirección ve lo que viene en camino.'},
+  {sel:'#prosA', t:'Tus 5 mejores prospectos', d:'La lista corta en la que te vas a enfocar. Escríbelos aquí y quedan guardados. ¡Listo, eso es todo el panel!'},
+];
+let tourI = -1, tourEl = null;
+const tourActivo = () => tourI >= 0;
+
+function tourIr(i){
+  const paso = TOUR[i], el = document.querySelector(paso.sel);
+  if (!el) return tourFin();
+  tourI = i; tourEl = el;
+  $('#tour').hidden = false;
+  $('#tourBox').innerHTML = `<h4>${paso.t}</h4><p>${paso.d}</p>
+    <div class="tour-nav"><span class="step">${i+1} / ${TOUR.length}</span>
+      <button id="tourSkip">Saltar</button>
+      <button id="tourNext" class="pri">${i===TOUR.length-1?'¡Listo!':'Siguiente'}</button>
+    </div>`;
+  $('#tourNext').onclick = () => i+1 < TOUR.length ? tourIr(i+1) : tourFin();
+  $('#tourSkip').onclick = tourFin;
+  el.scrollIntoView({block:'center'});          // instantáneo: medimos justo después
+  tourPintar();
+}
+
+// solo reposiciona (el contenido lo pinta tourIr); se llama también al hacer scroll
+function tourPintar(){
+  if (!tourEl) return;
+  const r = tourEl.getBoundingClientRect(), pad = 8;
+  const hole = $('#tourHole'), box = $('#tourBox');
+  Object.assign(hole.style, {top:(r.top-pad)+'px', left:(r.left-pad)+'px',
+    width:(r.width+pad*2)+'px', height:(r.height+pad*2)+'px'});
+  const bh = box.offsetHeight, bw = box.offsetWidth;
+  // debajo del hueco si cabe; si no, encima; y si el elemento es tan alto que no
+  // cabe de ningún lado (móvil), pegado al fondo — tapa poco y nunca se sale.
+  const abajo = r.bottom + 14 + bh < innerHeight, arriba = r.top - 14 - bh > 12;
+  box.style.top = (abajo ? r.bottom+14 : arriba ? r.top-14-bh : Math.max(12, innerHeight-bh-12))+'px';
+  box.style.left = Math.min(Math.max(12, r.left), innerWidth-bw-12)+'px';
+}
+
+function tourFin(){
+  tourI = -1; tourEl = null;
+  $('#tour').hidden = true;
+  localStorage.setItem(TOUR_KEY, '1');
+}
+addEventListener('scroll', () => { if (tourActivo()) tourPintar(); }, {passive:true});
+addEventListener('resize', () => { if (tourActivo()) tourPintar(); });
+addEventListener('keydown', e => { if (e.key==='Escape' && tourActivo()) tourFin(); });
+
 async function cargarEstado(){
   try { DB = await fetch('/api/state').then(r=>r.json()); DB.pipe ||= {}; DB.pros ||= {}; }
   catch(e){ console.error('sin conexión al servidor', e); }
@@ -884,7 +960,14 @@ async function iniciarApp(){
   btnOut.onclick = () => { localStorage.removeItem(SESSION_KEY); location.reload(); };
   await cargarEstado();
   render();
+  if (vista === 'agente') {                       // el tour explica la vista del agente
+    const btnT = $('#btnTour');
+    btnT.style.display = '';
+    btnT.onclick = () => tourIr(0);
+    if (!localStorage.getItem(TOUR_KEY)) tourIr(0);   // la primera vez arranca solo
+  }
   setInterval(async () => {
+    if (tourActivo()) return;                                                       // el repintado rompería el spotlight
     if (document.activeElement && document.activeElement.tagName==='INPUT') return; // no interrumpir mientras escribe
     const antes = JSON.stringify(DB);
     await cargarEstado();
