@@ -918,7 +918,11 @@ function tourIr(i){
     </div>`;
   $('#tourNext').onclick = () => i+1 < TOUR.length ? tourIr(i+1) : tourFin();
   $('#tourSkip').onclick = tourFin;
-  el.scrollIntoView({block:'center'});          // instantáneo: medimos justo después
+  // centrar el elemento solo si abajo queda sitio para el recuadro; en pantallas
+  // bajas conviene subirlo, si no el recuadro cae al fondo y lo tapa a la mitad.
+  const centrado = (innerHeight - el.getBoundingClientRect().height)/2 > $('#tourBox').offsetHeight + 26;
+  el.scrollIntoView({block: centrado ? 'center' : 'start'});   // instantáneo: medimos justo después
+  if (!centrado) scrollBy(0, -80);                             // que no quede bajo el header
   tourPintar();
 }
 
